@@ -7,6 +7,7 @@ import ClientLogin from './client/ClientLogin';
 import AdminHome from './admin/AdminHome';
 import ClientHome from './client/ClientHome';
 import ClientRegister from './client/ClientRegister';
+import CustomerInfo from './admin/CustomerInfo';
 
 function App() {
   return (
@@ -19,6 +20,8 @@ function App() {
           <Route path="/client/register" element={<ClientRegister />} />
           <Route path="/admin/home" element={<AdminHome />} />
           <Route path="/client/home" element={<ClientHome />} />
+          <Route path="/admin/CustomerInfo" element={<CustomerInfo />} />
+
         </Routes>
       </Container>
     </Router>

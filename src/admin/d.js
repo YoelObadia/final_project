@@ -68,7 +68,7 @@ export function AdminHome() {
       <Grid container spacing={2} justifyContent="center" alignItems="center" style={{ height: '100vh' }}>
         <Grid item>
           {/* Modify this to admin of url */}
-          <Typography variant="h4">Welcome Admin</Typography>
+          <Typography variant="h4">Content of the page</Typography>
         </Grid>
       </Grid>
     </div>
