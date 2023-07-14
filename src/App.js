@@ -2,11 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Container } from '@material-ui/core';
 import UserSelection from './UserSelection';
-import AdminLogin from './AdminLogin';
-import ClientLogin from './ClientLogin';
-import AdminHome from './AdminHome';
-import ClientHome from './ClientHome';
-import ClientRegister from './ClientRegister';
+import AdminLogin from './admin/AdminLogin';
+import ClientLogin from './client/ClientLogin';
+import AdminHome from './admin/AdminHome';
+import ClientHome from './client/ClientHome';
+import ClientRegister from './client/ClientRegister';
 
 function App() {
   return (
