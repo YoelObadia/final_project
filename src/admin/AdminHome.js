@@ -3,25 +3,34 @@ import { useState, createContext } from "react";
 import { AppBar, Toolbar, Typography, Button, makeStyles, Grid } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
-    appBar: {
-        backgroundColor: 'maroon',
-        width: '1535px',
-        alignContent:'center',
-        alignItems:'center',
-        margin:'auto',
-        marginLeft:'-500px'
-      },
-      navLink: {
-        '&.active': {
-          backgroundColor: theme.palette.primary.light,
-        },
-        textDecoration: 'none',
-        color: 'inherit',
-        marginRight: theme.spacing(2),
-        padding: theme.spacing(1),
-        borderRadius: theme.shape.borderRadius,
-      },
-    }));
+  appBar: {
+    backgroundColor: 'maroon',
+    width: '1535px',
+    alignContent:'center',
+    alignItems:'center',
+    margin:'auto',
+    marginLeft:'-500px'
+  },
+  toolbar: {
+    justifyContent: "space-between",
+  },
+  welcome: {
+    marginRight: theme.spacing(4),
+  },
+  navLinkContainer: {
+    display: "flex",
+    alignItems: "center",
+  },
+  navLink: {
+    margin: theme.spacing(0, 2),
+    textDecoration: "none",
+    color: theme.palette.common.white,
+  },
+  logoutButton: {
+    marginLeft: theme.spacing(2),
+    color: theme.palette.common.white,
+  },
+}));
 
 export const EssaiContext = createContext();
 

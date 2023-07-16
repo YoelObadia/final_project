@@ -4,8 +4,12 @@ import { AppBar, Toolbar, Typography, Button, makeStyles, Grid } from "@material
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
-    marginBottom: theme.spacing(2),
-    backgroundColor: "darkred", // Couleur de la navbar
+    backgroundColor: 'maroon',
+    width: '1535px',
+    alignContent:'center',
+    alignItems:'center',
+    margin:'auto',
+    marginLeft:'-500px'
   },
   toolbar: {
     justifyContent: "space-between",
@@ -25,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   logoutButton: {
     marginLeft: theme.spacing(2),
     color: theme.palette.common.white,
-  },
+  },
 }));
 
 export const EssaiContext = createContext();
