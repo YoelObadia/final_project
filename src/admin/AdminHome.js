@@ -5,11 +5,11 @@ import { AppBar, Toolbar, Typography, Button, makeStyles, Grid } from "@material
 const useStyles = makeStyles((theme) => ({
     appBar: {
         backgroundColor: 'maroon',
-        width: '1550px',
+        width: '1535px',
         alignContent:'center',
         alignItems:'center',
         margin:'auto',
-        marginLeft:'-33%'
+        marginLeft:'-500px'
       },
       navLink: {
         '&.active': {
@@ -41,6 +41,9 @@ export function AdminHome() {
     <div>
       <AppBar position="static" className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
+        <Typography variant="h6" className={classes.welcome}>
+            Welcome [Username]!
+          </Typography>
           {current_user && (
             <Typography variant="h6" className={classes.welcome}>
               Welcome {current_user.name}!

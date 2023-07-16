@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from "react-router-dom";
 import { Grid, Typography, AppBar, Toolbar, makeStyles, TextField, Button } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
-  appBar: {
-    backgroundColor: 'maroon',
-    width: '1550px',
-    alignContent: 'center',
-    alignItems: 'center',
-    margin: 'auto',
-    marginLeft: '-33%'
-  },
+    appBar: {
+        backgroundColor: 'maroon',
+        width: '1535px',
+        alignContent:'center',
+        alignItems:'center',
+        margin:'auto',
+        marginLeft:'-500px'
+      },
   navLink: {
-    '&.active': {
-      backgroundColor: theme.palette.primary.light,
-    },
     textDecoration: 'none',
     color: 'inherit',
+
     marginRight: theme.spacing(2),
     padding: theme.spacing(1),
     borderRadius: theme.shape.borderRadius,
@@ -57,6 +55,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function CustomerInfo() {
+    const navigate = useNavigate();
+
   const classes = useStyles();
   const [isFocused, setIsFocused] = useState(false);
 
@@ -68,24 +68,44 @@ function CustomerInfo() {
     setIsFocused(false);
   };
 
+  const Logout = (event) => {
+    event.preventDefault();
+    navigate("/");
+    localStorage.removeItem("currentUser");
+  };
+
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid item>
-        <AppBar position="static" className={classes.appBar}>
-          <Toolbar style={{ minHeight: '80px' }}>
-            <NavLink exact to="/admin/customerInfo" className={classes.navLink} activeClassName="active">Customer Information</NavLink>
-            <NavLink exact to="/admin/customer-account" className={classes.navLink} activeClassName="active">Customer Account</NavLink>
-            <NavLink exact to="/admin/transfer" className={classes.navLink} activeClassName="active">Transfer</NavLink>
-            <NavLink exact to="/admin/withdrawal" className={classes.navLink} activeClassName="active">Withdrawal</NavLink>
-            <NavLink exact to="/admin/add-admin" className={classes.navLink} activeClassName="active">Add Admin</NavLink>
-            <NavLink activeClassName="active">Logout</NavLink>
-          </Toolbar>
-        </AppBar>
-      </Grid>
+      <AppBar position="static" className={classes.appBar}>
+        <Toolbar>
+          <Typography variant="h6" className={classes.welcome}>
+            Welcome [Username]!
+          </Typography>
+          <div className={classes.navLinkContainer}>
+            <NavLink className={classes.navLink} to="/admin/CustomerInfo">
+              Customer Info
+            </NavLink>
+            <NavLink className={classes.navLink} to="/admin/transfer">
+            Transfer
+            </NavLink>
+            <NavLink className={classes.navLink} to="/admin/Transactions">
+            Transactions
+            </NavLink>
+            <NavLink className={classes.navLink} to="/admin/AddAdmin">
+            Add Administrator
+            </NavLink>
+            <Button className={classes.logoutButton} color="inherit" onClick={Logout}>
+              Logout
+            </Button>
+          </div>
+        </Toolbar>
+      </AppBar>
       <Grid item container alignItems="center">
         <Grid item xs={false} sm={2} />
         <Grid item xs={12} sm={8}>
-          <Typography variant="h6" className={classes.customerInfo}>Customer Information</Typography>
+          <Typography variant="h6" className={classes.customerInfo}>
+            Customer Information
+          </Typography>
         </Grid>
       </Grid>
       <Grid item container justifyContent="center" className={classes.searchContainer}>

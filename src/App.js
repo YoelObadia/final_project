@@ -8,6 +8,9 @@ import AdminHome from './admin/AdminHome';
 import ClientHome from './client/ClientHome';
 import ClientRegister from './client/ClientRegister';
 import CustomerInfo from './admin/CustomerInfo';
+import Transfer from './admin/Transfer';
+import Transactions from './admin/Transactions';
+import AddAdmin from './admin/AddAdmin';
 
 function App() {
   return (
@@ -21,7 +24,9 @@ function App() {
           <Route path="/admin/home" element={<AdminHome />} />
           <Route path="/client/home" element={<ClientHome />} />
           <Route path="/admin/CustomerInfo" element={<CustomerInfo />} />
-
+          <Route path="/admin/Transfer" element={<Transfer />} />
+          <Route path="/admin/Transactions" element={<Transactions />} />
+          <Route path="/admin/AddAdmin" element={<AddAdmin />} />
         </Routes>
       </Container>
     </Router>
