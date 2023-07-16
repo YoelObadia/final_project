@@ -24,7 +24,7 @@ const createClientTable = () => {
 
   con.query(sql, (err, result) => {
     if (err) throw err;
-    console.log('Table "client" créée avec succès');
+    console.log('Table "client" created successfully');
     createClientPasswordTable();
   });
 };
@@ -42,7 +42,7 @@ const createClientPasswordTable = () => {
 
   con.query(sql, (err, result) => {
     if (err) throw err;
-    console.log('Table "client_password" créée avec succès');
+    console.log('Table "client_password" created successfully');
     createClientAccountTable();
   });
 };
@@ -53,6 +53,7 @@ const createClientAccountTable = () => {
       id INT PRIMARY KEY AUTO_INCREMENT,
       userId INT NOT NULL,
       username VARCHAR(255) NOT NULL,
+      accountNumber VARCHAR(6) UNIQUE NOT NULL,
       balance DECIMAL(10, 2) NOT NULL,
       FOREIGN KEY (userId) REFERENCES client(id)
     )
@@ -60,7 +61,7 @@ const createClientAccountTable = () => {
 
   con.query(sql, (err, result) => {
     if (err) throw err;
-    console.log('Table "client_account" créée avec succès');
+    console.log('Table "client_account" created successfully');
     createAdminTable();
   });
 };
@@ -80,7 +81,7 @@ const createAdminTable = () => {
 
   con.query(sql, (err, result) => {
     if (err) throw err;
-    console.log('Table "admin" créée avec succès');
+    console.log('Table "admin" created successfully');
     createAdminPasswordTable();
   });
 };
@@ -98,13 +99,13 @@ const createAdminPasswordTable = () => {
 
   con.query(sql, (err, result) => {
     if (err) throw err;
-    console.log('Table "admin_password" créée avec succès');
+    console.log('Table "admin_password" created successfully');
     insertData();
   });
 };
 
 const insertData = () => {
-  // Insérer 10 clients par défaut
+  // Insert 10 default clients
   for (let i = 0; i < 10; i++) {
     const firstName = faker.name.firstName();
     const lastName = faker.name.lastName().replace("'", "''");
@@ -126,11 +127,13 @@ const insertData = () => {
       SELECT id, '${username}', '${password}' FROM client WHERE username = '${username}'
     `;
 
+    const accountNumber = faker.datatype.number({ min: 100000, max: 999999 }).toString();
+
     const balance = faker.datatype.float({ min: 500, max: 10000 }).toFixed(2);
 
     const accountSql = `
-      INSERT INTO client_account (userId, username, balance)
-      SELECT id, '${username}', ${balance} FROM client WHERE username = '${username}'
+      INSERT INTO client_account (userId, username, accountNumber, balance)
+      SELECT id, '${username}', '${accountNumber}', ${balance} FROM client WHERE username = '${username}'
     `;
 
     con.query(clientSql, (err, result) => {
@@ -146,7 +149,7 @@ const insertData = () => {
     });
   }
 
-  // Insérer 3 administrateurs par défaut
+  // Insert 3 default administrators
   for (let i = 0; i < 3; i++) {
     const firstName = faker.name.firstName();
     const lastName = faker.name.lastName().replace("'", "''");
@@ -177,7 +180,7 @@ const insertData = () => {
     });
   }
 
-  console.log('Données insérées avec succès');
+  console.log('Data inserted successfully');
   con.end();
 };
 
