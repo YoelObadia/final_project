@@ -12,6 +12,9 @@ import ClientWithdrawal from './client/ClientWithdrawal';
 import ClientTransfer from './client/ClientTransfer';
 import ClientTransactions from './client/ClientTransactions';
 import CustomerInfo from './admin/CustomerInfo';
+import Transfer from './admin/Transfer';
+import Transactions from './admin/Transactions';
+import AddAdmin from './admin/AddAdmin';
 
 function App() {
   return (
@@ -25,10 +28,8 @@ function App() {
           <Route path="/client/login" element={<ClientLogin />} />
           <Route path="/client/register" element={<ClientRegister />} />
           <Route path="/client/home" element={<ClientHome />} />
-          <Route path="/client/deposit" element={<ClientDeposit />} />
-          <Route path="/client/withdrawal" element={<ClientWithdrawal />} />
-          <Route path="/client/transfer" element={<ClientTransfer />} />
-          <Route path="/client/transactions" element={<ClientTransactions />} />
+          <Route path="/admin/CustomerInfo" element={<CustomerInfo />} />
+
         </Routes>
       </Container>
     </Router>
