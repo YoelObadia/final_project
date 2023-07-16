@@ -50,17 +50,20 @@ export function AdminHome() {
             </Typography>
           )}
           <div className={classes.navLinkContainer}>
-            <NavLink className={classes.navLink} to="/admin/CustomerInfo">
+            <NavLink className={classes.navLink} to="/admin/customerInfo">
               CustomerInfo
             </NavLink>
-            <NavLink className={classes.navLink} to="/admin/Transfer">
+            <NavLink className={classes.navLink} to="/admin/transfer">
               Transfer
             </NavLink>
-            <NavLink className={classes.navLink} to="/admin/Transactions">
+            <NavLink className={classes.navLink} to="/admin/transactions">
               Transactions
             </NavLink>
-            <NavLink className={classes.navLink} to="/admin/AddAdmin">
+            <NavLink className={classes.navLink} to="/admin/addAdmin">
               Add Administrator
+            </NavLink>
+            <NavLink className={classes.navLink} to="/admin/customerAccount">
+              Accounts
             </NavLink>
             <Button className={classes.logoutButton} color="inherit" onClick={Logout}>
               Logout
