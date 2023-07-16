@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 
 // Importer les contrôleurs pour le côté client
-const clientDepositController = require('../controllers/clientDepositController');
-const clientHomeController = require('../controllers/clientHomeController');
-const clientLoginController = require('../controllers/clientLoginController');
-const clientRegisterController = require('../controllers/clientRegisterController');
-const clientTransactionsController = require('../controllers/clientTransactionsController');
-const clientTransferController = require('../controllers/clientTransferController');
-const clientWithdrawalController = require('../controllers/clientWithdrawalController');
+const clientDepositController = require('./clientDepositController');
+const clientHomeController = require('./clientHomeController');
+const clientLoginController = require('./clientLoginController');
+const clientRegisterController = require('./clientRegisterController');
+const clientTransactionsController = require('./clientTransactionsController');
+const clientTransferController = require('./clientTransferController');
+const clientWithdrawalController = require('./clientWithdrawalController');
 
 // Routes pour le côté client
 router.post('/client/deposit', clientDepositController.deposit);

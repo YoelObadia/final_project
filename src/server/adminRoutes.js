@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 
 // Importer les contrôleurs pour le côté admin
-const adminHomeController = require('../controllers/adminHomeController');
-const adminLoginController = require('../controllers/adminLoginController');
-const customerInfoController = require('../controllers/customerInfoController');
-const transactionsController = require('../controllers/transactionsController');
-const transferController = require('../controllers/transferController');
-const customerAccountController = require('../controllers/customerAccountController');
-const addAdminController = require('../controllers/addAdminController');
+const adminHomeController = require('./adminHomeController');
+const adminLoginController = require('./adminLoginController');
+const customerInfoController = require('./customerInfoController');
+const transactionsController = require('./transactionsController');
+const transferController = require('./transferController');
+const customerAccountController = require('./customerAccountController');
+const addAdminController = require('./addAdminController');
 
 // Routes pour le côté admin
 router.get('/admin/home', adminHomeController.getHome);
@@ -17,6 +17,6 @@ router.get('/admin/customer-info/:customerId', customerInfoController.getCustome
 router.get('/admin/transactions', transactionsController.getTransactions);
 router.post('/admin/transfer', transferController.transfer);
 router.get('/admin/customer-account/:customerId', customerAccountController.getAccount);
-router.post('/admin/add-admin', addAdminController.addAdmin);
+router.post('/admin/addadmin', addAdminController.addAdmin);
 
 module.exports = router;

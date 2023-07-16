@@ -1,50 +1,82 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Grid, Typography, Container } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
-    background: {
-      backgroundColor: '#f0f0f0', // Couleur de fond souhaitée
-      minHeight: '100vh', // Hauteur minimale de la page pour remplir l'écran
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+  background: {
+    backgroundColor: '#f0f0f0',
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contentContainer: {
+    padding: theme.spacing(3),
+    borderRadius: theme.spacing(1),
+    backgroundColor: '#6d071a51',
+  },
+  button: {
+    margin: theme.spacing(2, 0),
+    backgroundColor: 'maroon',
+    color: '#ffffff',
+    '&:hover': {
+      backgroundColor: 'darkred',
     },
-    contentContainer: {
-      padding: theme.spacing(3),
-      borderRadius: theme.spacing(1),
-      backgroundColor: '#6d071a51', // Couleur de fond pour le contenu
-    },
-    button: {
-      margin: theme.spacing(2, 0),
-      backgroundColor: 'maroon', // Couleur de fond pour les boutons (bordeaux)
-      color: '#ffffff', // Couleur du texte pour les boutons (blanc)
-      '&:hover': {
-        backgroundColor: 'darkred', // Couleur de fond au survol des boutons (bordeaux foncé)
-      },
-    },
-  }));
+  },
+  errorContainer: {
+    margin: theme.spacing(2, 0),
+    padding: theme.spacing(2),
+    backgroundColor: '#f44336',
+    color: '#ffffff',
+    borderRadius: theme.spacing(1),
+    textAlign: 'center',
+  },
+}));
 
 function UserSelection() {
   const classes = useStyles();
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleAdminLogin = () => {
-    navigate('/admin/login');
+  const handleAdminLogin = async () => {
+    try {
+      const response = await fetch('/admin/login');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+      navigate('/admin/login');
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   };
 
-  const handleClientLogin = () => {
-    navigate('/client/login');
+  const handleClientLogin = async () => {
+    try {
+      const response = await fetch('/client/login');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+      navigate('/client/login');
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   };
 
   return (
     <div className={classes.background}>
       <Container maxWidth="sm">
         <Grid container spacing={2} className={classes.contentContainer}>
+          {errorMessage && (
+            <Grid item xs={12}>
+              <div className={classes.errorContainer}>{errorMessage}</div>
+            </Grid>
+          )}
           <Grid item xs={12}>
             <Typography variant="h4" align="center">
-              Welcome to <br></br> Royal Bank
+              Welcome to <br /> Royal Bank
             </Typography>
           </Grid>
           <Grid item xs={12}>
