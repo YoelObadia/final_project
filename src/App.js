@@ -7,6 +7,10 @@ import ClientLogin from './client/ClientLogin';
 import AdminHome from './admin/AdminHome';
 import ClientHome from './client/ClientHome';
 import ClientRegister from './client/ClientRegister';
+import ClientDeposit from './client/ClientDeposit';
+import ClientWithdrawal from './client/ClientWithdrawal';
+import ClientTransfer from './client/ClientTransfer';
+import ClientTransactions from './client/ClientTransactions';
 import CustomerInfo from './admin/CustomerInfo';
 
 function App() {
@@ -16,12 +20,15 @@ function App() {
         <Routes>
           <Route path="/" element={<UserSelection />} />
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/home" element={<AdminHome />} />
+          <Route path="/admin/CustomerInfo" element={<CustomerInfo />} />
           <Route path="/client/login" element={<ClientLogin />} />
           <Route path="/client/register" element={<ClientRegister />} />
-          <Route path="/admin/home" element={<AdminHome />} />
           <Route path="/client/home" element={<ClientHome />} />
-          <Route path="/admin/CustomerInfo" element={<CustomerInfo />} />
-
+          <Route path="/client/deposit" element={<ClientDeposit />} />
+          <Route path="/client/withdrawal" element={<ClientWithdrawal />} />
+          <Route path="/client/transfer" element={<ClientTransfer />} />
+          <Route path="/client/transactions" element={<ClientTransactions />} />
         </Routes>
       </Container>
     </Router>
