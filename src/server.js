@@ -140,3 +140,29 @@ app.get('/client/home', (req, res) => {
   });
 });
 
+
+///////////////////////transfer client
+
+
+// Exemple de route POST pour le dépôt du client
+app.post('/client/deposit', (req, res) => {
+  const { userId, amount } = req.body;
+
+  // Effectuer la logique pour effectuer le dépôt dans la base de données
+  const sql = `
+    UPDATE client_account
+    SET balance = balance + ${amount}
+    WHERE userId = ${userId}
+  `;
+
+  connection.query(sql, (err, result) => {
+    if (err) {
+      console.error('Erreur lors du dépôt du client :', err);
+      res.status(500).json({ message: 'Une erreur est survenue lors du dépôt.' });
+      return;
+    }
+
+    res.json({ message: 'Dépôt effectué avec succès.' });
+  });
+});
+

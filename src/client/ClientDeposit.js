@@ -83,11 +83,29 @@ export function ClientDeposit() {
     localStorage.removeItem("currentUser");
   }
 
-  const handleDeposit = (event) => {
+  const handleDeposit = async (event) => {
     event.preventDefault();
-    // Logic to process the deposit
 
-    // Show success message or navigate to confirmation page
+    try {
+      const response = await fetch('http://localhost:3000/client/deposit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: user.id, amount: depositAmount }),
+      });
+
+      if (response.ok) {
+        // Afficher un message de réussite ou naviguer vers la page de confirmation
+      } else {
+        const errorData = await response.json();
+        console.error('Erreur lors du dépôt du client :', errorData.message);
+        // Afficher une erreur à l'utilisateur
+      }
+    } catch (error) {
+      console.error('Erreur lors du dépôt du client :', error);
+      // Afficher une erreur à l'utilisateur
+    }
   }
 
   return (
