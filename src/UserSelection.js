@@ -44,11 +44,15 @@ function UserSelection() {
       const response = await fetch('/admin/login');
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message);
+        setErrorMessage(errorData.message);
+        return;
       }
       navigate('/admin/login');
     } catch (error) {
-      setErrorMessage(error.message);
+      setErrorMessage('Error 404. Page not found!');
+      setTimeout(() => {
+        setErrorMessage('');
+      }, 1500);
     }
   };
 
@@ -57,11 +61,15 @@ function UserSelection() {
       const response = await fetch('/client/login');
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message);
+        setErrorMessage(errorData.message);
+        return;
       }
       navigate('/client/login');
     } catch (error) {
-      setErrorMessage(error.message);
+      setErrorMessage('Error 404. Page not found!');
+      setTimeout(() => {
+        setErrorMessage('');
+      }, 1500);
     }
   };
 
