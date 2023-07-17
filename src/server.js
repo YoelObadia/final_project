@@ -145,12 +145,11 @@ app.get('/client/home', (req, res) => {
 
 
 
+// Exemple de route GET pour le dépôt du client
+app.get('/client/deposit', (req, res) => {
+  const { userId, amount } = req.query;
 
-// Exemple de route POST pour le dépôt du client
-app.post('/client/deposit', (req, res) => {
-  const { userId, amount } = req.body;
-
-  // Effectuer la logique pour effectuer le dépôt dans la base de données
+  // Effectuer la logique pour mettre à jour le montant du compte dans la base de données
   const sql = `
     UPDATE client_account
     SET balance = balance + ${amount}
@@ -167,4 +166,5 @@ app.post('/client/deposit', (req, res) => {
     res.json({ message: 'Dépôt effectué avec succès.' });
   });
 });
+
 
