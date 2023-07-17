@@ -50,6 +50,10 @@ app.listen(3000, () => {
 
 
 
+
+//////////////////////////////////////////////////client login
+
+
 // Exemple de route POST pour la connexion du client
 app.post('/client/login', (req, res) => {
   const { username, password } = req.body;
@@ -92,3 +96,47 @@ app.post('/client/login', (req, res) => {
     });
   });
 });
+
+
+
+
+
+
+
+
+//////////////////////////////////////////client home
+
+// Exemple de route GET pour la page d'accueil du client
+app.get('/client/home', (req, res) => {
+  const { userId } = req.query;
+
+  // Effectuer la logique pour récupérer les informations du client à afficher sur la page d'accueil
+  const sql = `
+    SELECT firstname, lastname
+    FROM client
+    WHERE id = ${userId}
+  `;
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la récupération des informations du client :', err);
+      res.status(500).json({ message: 'Une erreur est survenue lors de la récupération des informations du client.' });
+      return;
+    }
+
+    if (results.length === 0) {
+      // Aucun utilisateur trouvé avec l'ID spécifié
+      res.status(404).json({ message: 'Utilisateur non trouvé.' });
+      return;
+    }
+
+    const user = results[0];
+
+    // Les informations du client sont valides
+    res.json({
+      firstname: user.firstname,
+      lastname: user.lastname,
+    });
+  });
+});
+

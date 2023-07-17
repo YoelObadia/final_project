@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useState, createContext } from "react";
+import { useState, useEffect, useContext, createContext } from "react";
 import { AppBar, Toolbar, Typography, Button, makeStyles, Grid } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -35,8 +35,7 @@ const useStyles = makeStyles((theme) => ({
 export const EssaiContext = createContext();
 
 export function ClientHome() {
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  const [current_user] = useState(user);
+  const [current_user, setCurrentUser] = useState(null);
   const navigate = useNavigate();
   const classes = useStyles();
 
@@ -46,13 +45,34 @@ export function ClientHome() {
     localStorage.removeItem("currentUser");
   }
 
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    setCurrentUser(user);
+
+    if (user) {
+      fetch(`http://localhost:3000/client/home?userId=${user.id}`)
+        .then(response => response.json())
+        .then(data => {
+          setCurrentUser(prevUser => ({
+            ...prevUser,
+            firstname: data.firstname,
+            lastname: data.lastname
+          }));
+        })
+        .catch(error => {
+          console.error('Erreur lors de la récupération des informations du client :', error);
+          // Afficher une erreur à l'utilisateur
+        });
+    }
+  }, []);
+
   return (
     <div>
       <AppBar position="static" className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
           {current_user && (
             <Typography variant="h6" className={classes.welcome}>
-              Welcome {current_user.name}!
+              Welcome {current_user.firstname} {current_user.lastname}!
             </Typography>
           )}
           <div className={classes.navLinkContainer}>
