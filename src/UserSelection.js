@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Grid, Typography, Container } from '@material-ui/core';
+import { Button, Grid, Typography, Container, Collapse } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -77,11 +77,6 @@ function UserSelection() {
     <div className={classes.background}>
       <Container maxWidth="sm">
         <Grid container spacing={2} className={classes.contentContainer}>
-          {errorMessage && (
-            <Grid item xs={12}>
-              <div className={classes.errorContainer}>{errorMessage}</div>
-            </Grid>
-          )}
           <Grid item xs={12}>
             <Typography variant="h4" align="center">
               Welcome to <br /> Royal Bank
@@ -108,6 +103,11 @@ function UserSelection() {
             >
               Client
             </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Collapse in={!!errorMessage}>
+              <div className={classes.errorContainer}>{errorMessage}</div>
+            </Collapse>
           </Grid>
         </Grid>
       </Container>
