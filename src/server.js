@@ -146,12 +146,19 @@ app.get('/client/home', (req, res) => {
 
 
 
+// ...
 
-// Exemple de route POST pour effectuer un dépôt d'argent par le client
-app.post('/client/deposit', (req, res) => {
+// Exemple de route GET pour la page de dépôt du client
+app.get('/client/deposit', (req, res) => {
+  // Code pour afficher la page de dépôt
+  res.json({ message: 'Page de dépôt du client' });
+});
+
+// Exemple de route PUT pour effectuer le dépôt d'argent par le client
+app.put('/client/deposit', (req, res) => {
   const { userId, amount } = req.body;
 
-  // Effectuer la logique pour mettre à jour le solde du client dans la base de données
+  // Effectuer la logique pour mettre à jour le montant dans la base de données
   const sql = `
     UPDATE client_account
     SET balance = balance + ${amount}
@@ -160,8 +167,8 @@ app.post('/client/deposit', (req, res) => {
 
   connection.query(sql, (err, result) => {
     if (err) {
-      console.error('Erreur lors de la mise à jour du solde du client :', err);
-      res.status(500).json({ message: 'Une erreur est survenue lors de la mise à jour du solde.' });
+      console.error('Erreur lors de la mise à jour du montant du client :', err);
+      res.status(500).json({ message: 'Une erreur est survenue lors de la mise à jour du montant.' });
       return;
     }
 
@@ -171,12 +178,10 @@ app.post('/client/deposit', (req, res) => {
       return;
     }
 
-    // La mise à jour du solde est effectuée avec succès
+    // La mise à jour du montant est effectuée avec succès
     res.json({ message: 'Dépôt effectué avec succès.' });
   });
 });
 
-// Démarre le serveur sur le port 3000
-app.listen(3000, () => {
-  console.log('Serveur démarré sur le port 3000');
-});
+// ...
+

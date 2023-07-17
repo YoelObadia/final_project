@@ -1,15 +1,15 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppBar, Toolbar, Typography, Button, makeStyles, Grid, TextField } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
     backgroundColor: 'maroon',
     width: '1535px',
-    alignContent:'center',
-    alignItems:'center',
-    margin:'auto',
-    marginLeft:'-500px'
+    alignContent: 'center',
+    alignItems: 'center',
+    margin: 'auto',
+    marginLeft: '-500px'
   },
   toolbar: {
     justifyContent: "space-between",
@@ -76,6 +76,11 @@ export function ClientDeposit() {
   const classes = useStyles();
 
   const [depositAmount, setDepositAmount] = useState('');
+  const [pageMessage, setPageMessage] = useState('');
+
+  useEffect(() => {
+    fetchDepositPage();
+  }, []);
 
   function Logout(event) {
     event.preventDefault();
@@ -83,10 +88,21 @@ export function ClientDeposit() {
     localStorage.removeItem("currentUser");
   }
 
+  const fetchDepositPage = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/client/deposit');
+      const data = await response.json();
+
+      setPageMessage(data.message);
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la page de dépôt :', error);
+    }
+  };
+
   const handleDeposit = async (event) => {
     event.preventDefault();
 
-    // Effectuer la logique pour envoyer la requête POST au serveur et effectuer le dépôt d'argent
+    // Effectuer la logique pour envoyer la requête PUT au serveur et effectuer le dépôt d'argent
     const userId = current_user.id;
     const amount = parseFloat(depositAmount);
 
@@ -97,7 +113,7 @@ export function ClientDeposit() {
     }
 
     const requestOptions = {
-      method: 'POST',
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, amount }),
     };
@@ -113,7 +129,7 @@ export function ClientDeposit() {
       console.error('Erreur lors de la demande de dépôt :', error);
       alert('Une erreur est survenue lors du dépôt.');
     }
-  }
+  };
 
   return (
     <div>
@@ -147,6 +163,7 @@ export function ClientDeposit() {
         <Grid item xs={12} sm={6}>
           <div className={classes.formContainer}>
             <Typography variant="h4" align="center">Deposit</Typography>
+            <Typography variant="body1" align="center">{pageMessage}</Typography>
             <form onSubmit={handleDeposit}>
               <TextField
                 className={classes.formInput}
