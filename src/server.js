@@ -32,13 +32,13 @@ connection.connect((err) => {
 // Définir les routes de l'API
 
 // Exemple de route GET
-app.get('/admin/logi', (req, res) => {
+app.get('/admin/login', (req, res) => {
   // Code pour la gestion de la connexion admin
   res.json({ message: 'Admin login' });
 });
 
 // Exemple de route GET
-app.get('/client/logi', (req, res) => {
+app.get('/client/login', (req, res) => {
   // Code pour la gestion de la connexion client
   res.json({ message: 'Client login' });
 });
@@ -46,4 +46,49 @@ app.get('/client/logi', (req, res) => {
 // Démarre le serveur sur le port 3000
 app.listen(3000, () => {
   console.log('Serveur démarré sur le port 3000');
+});
+
+
+
+// Exemple de route POST pour la connexion du client
+app.post('/client/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Effectuer la logique de connexion du client en vérifiant les informations dans la base de données
+  const sql = `
+    SELECT c.id, c.firstname, c.lastname, cp.password
+    FROM client c
+    INNER JOIN client_password cp ON c.id = cp.userId
+    WHERE c.username = '${username}'
+  `;
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la requête de connexion du client :', err);
+      res.status(500).json({ message: 'Une erreur est survenue lors de la connexion.' });
+      return;
+    }
+
+    if (results.length === 0) {
+      // Aucun utilisateur trouvé avec le nom d'utilisateur spécifié
+      res.status(401).json({ message: 'Nom d\'utilisateur ou mot de passe incorrect.' });
+      return;
+    }
+
+    const user = results[0];
+
+    if (user.password !== password) {
+      // Le mot de passe est incorrect
+      res.status(401).json({ message: 'Nom d\'utilisateur ou mot de passe incorrect.' });
+      return;
+    }
+
+    // Les informations de connexion sont valides
+    res.json({
+      id: user.id,
+      username,
+      firstname: user.firstname,
+      lastname: user.lastname,
+    });
+  });
 });

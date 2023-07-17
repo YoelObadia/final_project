@@ -7,11 +7,29 @@ function ClientLogin() {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  const handleLogin = () => {
-    // Effectuer des actions de connexion du client
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/client/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    // Rediriger vers la page d'accueil du client
-    navigate('/client/home');
+      if (response.ok) {
+        const data = await response.json();
+        // Rediriger vers la page d'accueil du client avec les données de l'utilisateur
+        navigate('/client/home', { state: data });
+      } else {
+        const errorData = await response.json();
+        console.error('Erreur de connexion du client :', errorData.message);
+        // Afficher une erreur à l'utilisateur
+      }
+    } catch (error) {
+      console.error('Erreur lors de la connexion du client :', error);
+      // Afficher une erreur à l'utilisateur
+    }
   };
 
   const handleRegister = () => {
