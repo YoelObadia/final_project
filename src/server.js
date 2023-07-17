@@ -145,11 +145,13 @@ app.get('/client/home', (req, res) => {
 
 
 
-// Exemple de route GET pour le dépôt du client
-app.get('/client/deposit', (req, res) => {
-  const { userId, amount } = req.query;
 
-  // Effectuer la logique pour mettre à jour le montant du compte dans la base de données
+
+// Exemple de route POST pour effectuer un dépôt d'argent par le client
+app.post('/client/deposit', (req, res) => {
+  const { userId, amount } = req.body;
+
+  // Effectuer la logique pour mettre à jour le solde du client dans la base de données
   const sql = `
     UPDATE client_account
     SET balance = balance + ${amount}
@@ -158,13 +160,23 @@ app.get('/client/deposit', (req, res) => {
 
   connection.query(sql, (err, result) => {
     if (err) {
-      console.error('Erreur lors du dépôt du client :', err);
-      res.status(500).json({ message: 'Une erreur est survenue lors du dépôt.' });
+      console.error('Erreur lors de la mise à jour du solde du client :', err);
+      res.status(500).json({ message: 'Une erreur est survenue lors de la mise à jour du solde.' });
       return;
     }
 
+    if (result.affectedRows === 0) {
+      // Aucun utilisateur trouvé avec l'ID spécifié
+      res.status(404).json({ message: 'Utilisateur non trouvé.' });
+      return;
+    }
+
+    // La mise à jour du solde est effectuée avec succès
     res.json({ message: 'Dépôt effectué avec succès.' });
   });
 });
 
-
+// Démarre le serveur sur le port 3000
+app.listen(3000, () => {
+  console.log('Serveur démarré sur le port 3000');
+});

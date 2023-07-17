@@ -74,7 +74,7 @@ export function ClientDeposit() {
   const [current_user] = useState(user);
   const navigate = useNavigate();
   const classes = useStyles();
-  
+
   const [depositAmount, setDepositAmount] = useState('');
 
   function Logout(event) {
@@ -83,29 +83,37 @@ export function ClientDeposit() {
     localStorage.removeItem("currentUser");
   }
 
-  // ...
-
   const handleDeposit = async (event) => {
     event.preventDefault();
-  
+
+    // Effectuer la logique pour envoyer la requête POST au serveur et effectuer le dépôt d'argent
+    const userId = current_user.id;
+    const amount = parseFloat(depositAmount);
+
+    if (isNaN(amount) || amount <= 0) {
+      // Vérification du montant invalide
+      alert('Veuillez entrer un montant valide.');
+      return;
+    }
+
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, amount }),
+    };
+
     try {
-      const response = await fetch(`http://localhost:3000/client/deposit?userId=${user.id}&amount=${depositAmount}`);
-  
-      if (response.ok) {
-        // Afficher un message de réussite ou effectuer une autre action nécessaire
-      } else {
-        const errorData = await response.json();
-        console.error('Erreur lors du dépôt du client :', errorData.message);
-        // Afficher une erreur à l'utilisateur
-      }
+      const response = await fetch('http://localhost:3000/client/deposit', requestOptions);
+      const data = await response.json();
+
+      // Afficher le message de succès et réinitialiser le champ du montant
+      alert(data.message);
+      setDepositAmount('');
     } catch (error) {
-      console.error('Erreur lors du dépôt du client :', error);
-      // Afficher une erreur à l'utilisateur
+      console.error('Erreur lors de la demande de dépôt :', error);
+      alert('Une erreur est survenue lors du dépôt.');
     }
   }
-
-// ...
-
 
   return (
     <div>
@@ -161,4 +169,4 @@ export function ClientDeposit() {
   );
 }
 
-export default ClientDeposit;
+export default ClientDeposit;
