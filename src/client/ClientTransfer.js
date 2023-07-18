@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppBar, Toolbar, Typography, Button, makeStyles, Grid, TextField } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -82,11 +82,26 @@ export function ClientTransfer() {
   const [transferMessage, setTransferMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  useEffect(() => {
+    fetchTransferPage();
+  }, []);
+
   function Logout(event) {
     event.preventDefault();
     navigate("/");
     localStorage.removeItem("currentUser");
   }
+
+  const fetchTransferPage = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/client/transfer');
+      const data = await response.json();
+
+      setTransferMessage(data.message);
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la page de dépôt :', error);
+    }
+  };
 
   const handleTransfer = async (event) => {
     event.preventDefault();
