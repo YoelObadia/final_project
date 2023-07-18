@@ -63,7 +63,7 @@ export function ClientHome() {
         });
     }
   }, [user]); // Ajoutez "user" dans le tableau de dépendances
- 
+
   return (
     <div>
       <AppBar position="static" className={classes.appBar}>

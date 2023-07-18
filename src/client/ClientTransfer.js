@@ -69,6 +69,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
 export function ClientTransfer() {
   const user = JSON.parse(localStorage.getItem("currentUser"));
   const [current_user] = useState(user);
@@ -78,6 +79,8 @@ export function ClientTransfer() {
   const [transferAmount, setTransferAmount] = useState('');
   const [paymentReason, setPaymentReason] = useState('');
   const [recipientAccountNumber, setRecipientAccountNumber] = useState('');
+  const [transferMessage, setTransferMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   function Logout(event) {
     event.preventDefault();
@@ -85,12 +88,46 @@ export function ClientTransfer() {
     localStorage.removeItem("currentUser");
   }
 
-  const handleTransfer = (event) => {
+  const handleTransfer = async (event) => {
     event.preventDefault();
-    // Logic to process the transfer
 
-    // Show success message or navigate to confirmation page
-  }
+    // Vérification des champs obligatoires
+    if (!transferAmount || !paymentReason || !recipientAccountNumber) {
+      setErrorMessage('Veuillez remplir tous les champs.');
+      return;
+    }
+
+    // Appel de l'API pour effectuer le transfert
+    try {
+      const response = await fetch('/client/transfer', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: current_user.id,
+          transferAmount,
+          paymentReason,
+          recipientAccountNumber,
+        }),
+      });
+
+      if (response.ok) {
+        // Transfert réussi, afficher le message de transfert effectué
+        setTransferMessage('Transfert effectué avec succès!');
+        setTransferAmount('');
+        setPaymentReason('');
+        setRecipientAccountNumber('');
+        setErrorMessage('');
+      } else {
+        const data = await response.json();
+        setErrorMessage(data.message);
+      }
+    } catch (error) {
+      console.error('Erreur lors du transfert:', error);
+      setErrorMessage('Une erreur est survenue lors du transfert. Veuillez réessayer plus tard.');
+    }
+  };
 
   return (
     <div>
@@ -124,6 +161,12 @@ export function ClientTransfer() {
         <Grid item xs={12} sm={6}>
           <div className={classes.formContainer}>
             <Typography variant="h4" align="center">Transfer</Typography>
+            <Typography variant="body1" align="center">{transferMessage}</Typography> 
+            {errorMessage && (
+              <Typography variant="body1" align="center" color="error" gutterBottom>
+                {errorMessage}
+              </Typography>
+            )}
             <form onSubmit={handleTransfer}>
               <TextField
                 className={classes.formInput}

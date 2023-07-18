@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppBar, Toolbar, Typography, Button, makeStyles, Grid, TextField } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -71,11 +71,16 @@ const useStyles = makeStyles((theme) => ({
 
 export function ClientWithdrawal() {
   const user = JSON.parse(localStorage.getItem("currentUser"));
-  const [current_user] = useState(user);
+  const [current_user, ] = useState(user);
   const navigate = useNavigate();
   const classes = useStyles();
   
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
+  const [pageMessage, setPageMessage] = useState('');
+
+  useEffect(() => {
+    fetchWithdrawalPage();
+  }, []);
 
   function Logout(event) {
     event.preventDefault();
@@ -83,12 +88,48 @@ export function ClientWithdrawal() {
     localStorage.removeItem("currentUser");
   }
 
-  const handleWithdrawal = (event) => {
-    event.preventDefault();
-    // Logic to process the withdrawal
+  const fetchWithdrawalPage = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/client/withdrawal');
+      const data = await response.json();
 
-    // Show success message or navigate to confirmation page
-  }
+      setPageMessage(data.message);
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la page de dépôt :', error);
+    }
+  };
+
+  const handleWithdrawal = async (event) => {
+    event.preventDefault();
+
+    // Effectuer la logique pour envoyer la requête POST au serveur pour le retrait d'argent
+    const userId = current_user.id;
+    const amount = parseFloat(withdrawalAmount);
+
+    if (isNaN(amount) || amount <= 0) {
+      // Vérification du montant invalide
+      alert('Veuillez entrer un montant valide.');
+      return;
+    }
+
+    const requestOptions = {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, amount }),
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/client/withdrawal', requestOptions);
+      const data = await response.json();
+
+      // Afficher le message de succès et réinitialiser le champ du montant
+      alert(data.message);
+      setWithdrawalAmount('');
+    } catch (error) {
+      console.error('Erreur lors de la demande de retrait :', error);
+      alert('Une erreur est survenue lors du retrait.');
+    }
+  };
 
   return (
     <div>
@@ -96,7 +137,7 @@ export function ClientWithdrawal() {
         <Toolbar className={classes.toolbar}>
           {current_user && (
             <Typography variant="h6" className={classes.welcome}>
-              Welcome {current_user.name}!
+              Welcome {current_user.firstname} {current_user.lastname}!
             </Typography>
           )}
           <div className={classes.navLinkContainer}>
@@ -122,6 +163,7 @@ export function ClientWithdrawal() {
         <Grid item xs={12} sm={6}>
           <div className={classes.formContainer}>
             <Typography variant="h4" align="center">Withdrawal</Typography>
+            <Typography variant="body1" align="center">{pageMessage}</Typography>
             <form onSubmit={handleWithdrawal}>
               <TextField
                 className={classes.formInput}
@@ -144,4 +186,4 @@ export function ClientWithdrawal() {
   );
 }
 
-export default ClientWithdrawal;
+export default ClientWithdrawal;
