@@ -87,7 +87,7 @@ export function ClientDeposit() {
     navigate("/");
     localStorage.removeItem("currentUser");
   }
-
+ 
   const fetchDepositPage = async () => {
     try {
       const response = await fetch('http://localhost:3000/client/deposit');

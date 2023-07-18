@@ -16,7 +16,7 @@ function ClientLogin() {
         },
         body: JSON.stringify({ username, password }),
       });
-  
+   
       if (response.ok) {
         const data = await response.json();
         // Stocker les informations du client dans le localStorage

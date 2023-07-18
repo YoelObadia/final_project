@@ -159,7 +159,7 @@ app.put('/client/deposit', (req, res) => {
       res.status(500).json({ message: 'Une erreur est survenue lors du dépôt.' });
       return;
     }
-
+ 
     if (result.length === 0) {
       res.status(404).json({ message: 'Utilisateur non trouvé.' });
       return;
