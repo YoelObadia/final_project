@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useState, useEffect, useContext, createContext } from "react";
+import { useState, useEffect, createContext } from "react";
 import { AppBar, Toolbar, Typography, Button, makeStyles, Grid } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -35,7 +35,8 @@ const useStyles = makeStyles((theme) => ({
 export const EssaiContext = createContext();
 
 export function ClientHome() {
-  const [current_user, setCurrentUser] = useState(null);
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+  const [current_user, setCurrentUser] = useState(user); // Change "current_user" to "setCurrentUser" in the line below
   const navigate = useNavigate();
   const classes = useStyles();
 
@@ -46,9 +47,6 @@ export function ClientHome() {
   }
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("currentUser"));
-    setCurrentUser(user);
-
     if (user) {
       fetch(`http://localhost:3000/client/home?userId=${user.id}`)
         .then(response => response.json())
@@ -64,7 +62,7 @@ export function ClientHome() {
           // Afficher une erreur à l'utilisateur
         });
     }
-  }, []);
+  }, [user]); // Ajoutez "user" dans le tableau de dépendances
 
   return (
     <div>

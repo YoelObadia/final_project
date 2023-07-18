@@ -143,45 +143,39 @@ app.get('/client/home', (req, res) => {
 
 ///////////////////////transfer deposit
 
-
-
-
-// ...
-
 // Exemple de route GET pour la page de dépôt du client
-app.get('/client/deposit', (req, res) => {
-  // Code pour afficher la page de dépôt
-  res.json({ message: 'Page de dépôt du client' });
-});
+// Faire le get de la page de depot
 
-// Exemple de route PUT pour effectuer le dépôt d'argent par le client
+// Exemple de route PUT pour le dépôt du client
 app.put('/client/deposit', (req, res) => {
   const { userId, amount } = req.body;
 
-  // Effectuer la logique pour mettre à jour le montant dans la base de données
-  const sql = `
-    UPDATE client_account
-    SET balance = balance + ${amount}
-    WHERE userId = ${userId}
-  `;
+  // Vérifier que l'utilisateur existe dans la base de données avant de procéder au dépôt
+  const checkUserQuery = `SELECT id FROM client WHERE id = ${userId}`;
 
-  connection.query(sql, (err, result) => {
+  connection.query(checkUserQuery, (err, result) => {
     if (err) {
-      console.error('Erreur lors de la mise à jour du montant du client :', err);
-      res.status(500).json({ message: 'Une erreur est survenue lors de la mise à jour du montant.' });
+      console.error('Erreur lors de la vérification de l\'utilisateur :', err);
+      res.status(500).json({ message: 'Une erreur est survenue lors du dépôt.' });
       return;
     }
 
-    if (result.affectedRows === 0) {
-      // Aucun utilisateur trouvé avec l'ID spécifié
+    if (result.length === 0) {
       res.status(404).json({ message: 'Utilisateur non trouvé.' });
       return;
     }
 
-    // La mise à jour du montant est effectuée avec succès
-    res.json({ message: 'Dépôt effectué avec succès.' });
+    // L'utilisateur existe dans la base de données, procéder au dépôt
+    const depositQuery = `UPDATE client_account SET balance = balance + ${amount} WHERE userId = ${userId}`;
+
+    connection.query(depositQuery, (err, result) => {
+      if (err) {
+        console.error('Erreur lors du dépôt :', err);
+        res.status(500).json({ message: 'Une erreur est survenue lors du dépôt.' });
+        return;
+      }
+
+      res.json({ message: 'Dépôt effectué avec succès!' });
+    });
   });
 });
-
-// ...
-

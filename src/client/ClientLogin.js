@@ -4,8 +4,8 @@ import { Grid, TextField, Button } from '@material-ui/core';
 
 function ClientLogin() {
   const navigate = useNavigate();
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [username, setUsername] = React.useState('Brandt46521');
+  const [password, setPassword] = React.useState('PzOdLhU9cOeGrWu');
 
   const handleLogin = async () => {
     try {
@@ -16,11 +16,13 @@ function ClientLogin() {
         },
         body: JSON.stringify({ username, password }),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
-        // Rediriger vers la page d'accueil du client avec les données de l'utilisateur
-        navigate('/client/home', { state: data });
+        // Stocker les informations du client dans le localStorage
+        localStorage.setItem('currentUser', JSON.stringify(data));
+        // Rediriger vers la page d'accueil du client
+        navigate('/client/home');
       } else {
         const errorData = await response.json();
         console.error('Erreur de connexion du client :', errorData.message);

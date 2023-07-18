@@ -71,7 +71,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function ClientDeposit() {
   const user = JSON.parse(localStorage.getItem("currentUser"));
-  const [current_user] = useState(user);
+  const [current_user, ] = useState(user);
   const navigate = useNavigate();
   const classes = useStyles();
 
