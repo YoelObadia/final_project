@@ -42,13 +42,13 @@ export function ClientHome() {
 
   function Logout(event) {
     event.preventDefault();
-    navigate("/");
     localStorage.removeItem("currentUser");
+    navigate("/");
   }
 
   useEffect(() => {
-    if (user) {
-      fetch(`http://localhost:3000/client/home?userId=${user.id}`)
+    if (user && user.clientId) { // Vérifiez si user.clientId est défini avant d'effectuer la requête
+      fetch(`http://localhost:3000/client/home?clientId=${user.clientId}`)
         .then(response => response.json())
         .then(data => {
           setCurrentUser(prevUser => ({
@@ -63,6 +63,7 @@ export function ClientHome() {
         });
     }
   }, [user]); // Ajoutez "user" dans le tableau de dépendances
+  
 
   return (
     <div>

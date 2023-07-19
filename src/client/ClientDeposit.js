@@ -87,7 +87,7 @@ export function ClientDeposit() {
     navigate("/");
     localStorage.removeItem("currentUser");
   }
- 
+
   const fetchDepositPage = async () => {
     try {
       const response = await fetch('http://localhost:3000/client/deposit');
@@ -102,12 +102,10 @@ export function ClientDeposit() {
   const handleDeposit = async (event) => {
     event.preventDefault();
 
-    // Effectuer la logique pour envoyer la requête PUT au serveur et effectuer le dépôt d'argent
     const userId = current_user.id;
     const amount = parseFloat(depositAmount);
 
     if (isNaN(amount) || amount <= 0) {
-      // Vérification du montant invalide
       alert('Veuillez entrer un montant valide.');
       return;
     }
@@ -122,14 +120,45 @@ export function ClientDeposit() {
       const response = await fetch('http://localhost:3000/client/deposit', requestOptions);
       const data = await response.json();
 
-      // Afficher le message de succès et réinitialiser le champ du montant
       alert(data.message);
       setDepositAmount('');
+
+      // Appel à la fonction pour enregistrer le dépôt dans la table "deposits"
+      
     } catch (error) {
       console.error('Erreur lors de la demande de dépôt :', error);
       alert('Une erreur est survenue lors du dépôt.');
     }
-  };
+
+
+    /////
+    const requestOptionsinfo = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, amount }),
+    };
+  
+    try {
+      const response = await fetch('http://localhost:3000/client/deposit', requestOptionsinfo);
+      const data = await response.json();
+  
+      // Afficher le message de succès et réinitialiser le champ du montant
+      
+      setDepositAmount('');
+    } catch (error) {
+      console.error('Erreur lors de la demande de depot :', error);
+      alert('Une erreur est survenue lors du depot.');
+    }
+  
+
+  
+
+ 
+
+
+
+};
+
 
   return (
     <div>
@@ -175,9 +204,11 @@ export function ClientDeposit() {
                 fullWidth
                 variant="outlined"
               />
+               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
               <Button type="submit" variant="contained" className={classes.submitButton}>
-                Submit
+                Deposit
               </Button>
+              </div>
             </form>
           </div>
         </Grid>
@@ -186,4 +217,4 @@ export function ClientDeposit() {
   );
 }
 
-export default ClientDeposit;
+export default ClientDeposit;

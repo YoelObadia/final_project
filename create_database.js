@@ -9,6 +9,11 @@ const con = mysql.createConnection({
   database: 'fs7'
 });
 
+const formatDateForMySQL = (date) => {
+  const formattedDate = new Date(date).toISOString().slice(0, 19).replace('T', ' ');
+  return formattedDate;
+};
+
 const createClientTable = () => {
   const sql = `
     CREATE TABLE IF NOT EXISTS client (
@@ -100,9 +105,86 @@ const createAdminPasswordTable = () => {
   con.query(sql, (err, result) => {
     if (err) throw err;
     console.log('Table "admin_password" created successfully');
-    insertData();
+    createDepositsTable(); // Nouvelle fonction pour créer la table "deposits"
   });
 };
+
+const createDepositsTable = () => {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS deposits (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      userId INT NOT NULL,
+      amount DECIMAL(10, 2) NOT NULL,
+      timestamp DATETIME NOT NULL,
+      FOREIGN KEY (userId) REFERENCES client(id)
+    )
+  `;
+
+  con.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log('Table "deposits" created successfully');
+    createWithdrawsTable(); // Nouvelle fonction pour créer la table "withdraws"
+  });
+};
+
+const createWithdrawsTable = () => {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS withdraws (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      userId INT NOT NULL,
+      amount DECIMAL(10, 2) NOT NULL,
+      timestamp DATETIME NOT NULL,
+      FOREIGN KEY (userId) REFERENCES client(id)
+    )
+  `;
+
+  con.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log('Table "withdraws" created successfully');
+    createReceivedTransfersTable(); // Nouvelle fonction pour créer la table "received_transfers"
+  });
+};
+
+const createReceivedTransfersTable = () => {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS received_transfers (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      userId INT NOT NULL,
+      amount DECIMAL(10, 2) NOT NULL,
+      reason VARCHAR(255) NOT NULL,
+      senderAccountNumber VARCHAR(6) NOT NULL,
+      timestamp DATETIME NOT NULL,
+      FOREIGN KEY (userId) REFERENCES client(id)
+    )
+  `;
+
+  con.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log('Table "received_transfers" created successfully');
+    createSharedTransfersTable(); // Nouvelle fonction pour créer la table "shared_transfers"
+  });
+};
+
+const createSharedTransfersTable = () => {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS shared_transfers (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      userId INT NOT NULL,
+      amount DECIMAL(10, 2) NOT NULL,
+      reason VARCHAR(255) NOT NULL,
+      receiverAccountNumber VARCHAR(6) NOT NULL,
+      timestamp DATETIME NOT NULL,
+      FOREIGN KEY (userId) REFERENCES client(id)
+    )
+  `;
+
+  con.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log('Table "shared_transfers" created successfully');
+    insertData(); // Appeler la fonction pour insérer les données fictives après la création des tables
+  });
+};
+
 
 const insertData = () => {
   // Insert 10 default clients
@@ -120,7 +202,7 @@ const insertData = () => {
       VALUES ('${firstName}', '${lastName}', '${phone}', '${email}', '${address}', '${username}')
     `;
 
-    const password = faker.internet.password();
+    const password = faker.datatype.number({ min: 100000, max: 999999 }).toString(); // Mot de passe à 6 chiffres
 
     const passwordSql = `
       INSERT INTO client_password (userId, username, password)
@@ -164,7 +246,7 @@ const insertData = () => {
       VALUES ('${firstName}', '${lastName}', '${phone}', '${email}', '${address}', '${username}')
     `;
 
-    const password = faker.internet.password();
+    const password = faker.datatype.number({ min: 100000, max: 999999 }).toString(); // Mot de passe à 6 chiffres
 
     const passwordSql = `
       INSERT INTO admin_password (userId, username, password)
@@ -178,6 +260,78 @@ const insertData = () => {
     con.query(passwordSql, (err, result) => {
       if (err) throw err;
     });
+  }
+
+  // Insert deposits for all clients
+  for (let i = 1; i <= 10; i++) {
+    for (let j = 0; j < 5; j++) {
+      const depositAmount = faker.datatype.float({ min: 100, max: 500 }).toFixed(2);
+      const timestamp = formatDateForMySQL(new Date());
+
+      const depositSql = `
+        INSERT INTO deposits (userId, amount, timestamp)
+        VALUES (${i}, ${depositAmount}, '${timestamp}')
+      `;
+
+      con.query(depositSql, (err, result) => {
+        if (err) throw err;
+      });
+    }
+  }
+
+
+  for (let i = 1; i <= 10; i++) {
+    for (let k = 0; k < 5; k++) {
+      const withdrawAmount = faker.datatype.float({ min: 50, max: 200 }).toFixed(2);
+      const timestamp = formatDateForMySQL(new Date());
+
+      const withdrawSql = `
+        INSERT INTO withdraws (userId, amount, timestamp)
+        VALUES (${i}, ${withdrawAmount}, '${timestamp}')
+      `;
+
+      con.query(withdrawSql, (err, result) => {
+        if (err) throw err;
+      });
+    }
+  }
+
+  // Insert received transfers for all clients
+  for (let i = 1; i <= 10; i++) {
+    for (let l = 0; l < 5; l++) {
+      const transferAmount = faker.datatype.float({ min: 100, max: 500 }).toFixed(2);
+      const transferReason = faker.lorem.sentence();
+      const senderAccountNumber = faker.datatype.number({ min: 100000, max: 999999 }).toString();
+      const timestamp = formatDateForMySQL(new Date());
+
+      const receivedTransferSql = `
+        INSERT INTO received_transfers (userId, amount, reason, senderAccountNumber, timestamp)
+        VALUES (${i}, ${transferAmount}, '${transferReason}', '${senderAccountNumber}', '${timestamp}')
+      `;
+
+      con.query(receivedTransferSql, (err, result) => {
+        if (err) throw err;
+      });
+    }
+  }
+
+  // Insert shared transfers for all clients
+  for (let i = 1; i <= 10; i++) {
+    for (let m = 0; m < 5; m++) {
+      const transferAmount = faker.datatype.float({ min: 100, max: 500 }).toFixed(2);
+      const transferReason = faker.lorem.sentence();
+      const receiverAccountNumber = faker.datatype.number({ min: 100000, max: 999999 }).toString();
+      const timestamp = formatDateForMySQL(new Date());
+
+      const sharedTransferSql = `
+        INSERT INTO shared_transfers (userId, amount, reason, receiverAccountNumber, timestamp)
+        VALUES (${i}, ${transferAmount}, '${transferReason}', '${receiverAccountNumber}', '${timestamp}')
+      `;
+
+      con.query(sharedTransferSql, (err, result) => {
+        if (err) throw err;
+      });
+    }
   }
 
   console.log('Data inserted successfully');

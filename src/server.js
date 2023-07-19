@@ -37,10 +37,16 @@ app.get('/admin/login', (req, res) => {
   res.json({ message: 'Admin login' });
 });
 
-// Exemple de route GET
+// Exemple de route GET pour accéder à la page client/login depuis client/register
 app.get('/client/login', (req, res) => {
-  // Code pour la gestion de la connexion client
-  res.json({ message: 'Client login' });
+  try {
+    // Code pour récupérer les informations nécessaires pour la page client/login
+    // Ici, nous pouvons simplement renvoyer un message indiquant que c'est la page client/login
+    res.json({ message: 'Client login page' });
+  } catch (error) {
+    console.error('Erreur lors de l\'accès à la page client/login :', error);
+    res.status(500).json({ message: 'Une erreur est survenue lors de l\'accès à la page client/login.' });
+  }
 });
 
 // Démarre le serveur sur le port 3000
@@ -98,45 +104,37 @@ app.post('/client/login', (req, res) => {
 });
 
 
-
-
-
-
-
-
 //////////////////////////////////////////client home
 
 // Exemple de route GET pour la page d'accueil du client
 app.get('/client/home', (req, res) => {
-  const { userId } = req.query;
+  const userId = req.query.userId;
 
-  // Effectuer la logique pour récupérer les informations du client à afficher sur la page d'accueil
-  const sql = `
+  if (!userId) {
+    res.status(400).json({ message: 'ID utilisateur manquant.' });
+    return;
+  }
+
+  const selectClientQuery = `
     SELECT firstname, lastname
     FROM client
-    WHERE id = ${userId}
+    WHERE id = ?
   `;
 
-  connection.query(sql, (err, results) => {
+  connection.query(selectClientQuery, [userId], (err, result) => {
     if (err) {
       console.error('Erreur lors de la récupération des informations du client :', err);
       res.status(500).json({ message: 'Une erreur est survenue lors de la récupération des informations du client.' });
       return;
     }
 
-    if (results.length === 0) {
-      // Aucun utilisateur trouvé avec l'ID spécifié
-      res.status(404).json({ message: 'Utilisateur non trouvé.' });
+    if (result.length === 0) {
+      res.status(404).json({ message: 'Client non trouvé.' });
       return;
     }
 
-    const user = results[0];
-
-    // Les informations du client sont valides
-    res.json({
-      firstname: user.firstname,
-      lastname: user.lastname,
-    });
+    const { firstname, lastname } = result[0];
+    res.status(200).json({ firstname, lastname });
   });
 });
 
@@ -187,6 +185,28 @@ app.put('/client/deposit', (req, res) => {
 });
 
 
+app.post('/client/deposit', (req, res) => {
+  const { userId, amount } = req.body;
+  const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' '); // Format de timestamp compatible avec MySQL DATETIME
+
+  
+    // L'utilisateur existe dans la base de données, procéder à l'insertion du retrait dans la table "withdraws"
+    const insertDepositQuery = `INSERT INTO deposits (userId, amount, timestamp) VALUES (${userId}, ${amount}, '${timestamp}')`;
+
+    connection.query(insertDepositQuery, (err) => {
+      if (err) {
+        console.error('Erreur lors de l\'insertion du retrait :', err);
+        res.status(500).json({ message: 'Une erreur est survenue lors du retrait.' });
+        return;
+      }
+
+      // Le retrait a été inséré avec succès, renvoyer une réponse avec un message de succès
+      res.json({ message: 'Depot effectué avec succès!' });
+    
+  });
+});
+
+
 /////////////////////////transfer withdraw
 
 // Exemple de route GET pour la page de dépôt du client
@@ -230,6 +250,27 @@ app.put('/client/withdrawal', (req, res) => {
   });
 });
 
+
+app.post('/client/withdrawal', (req, res) => {
+  const { userId, amount } = req.body;
+  const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' '); // Format de timestamp compatible avec MySQL DATETIME
+
+  
+    // L'utilisateur existe dans la base de données, procéder à l'insertion du retrait dans la table "withdraws"
+    const insertWithdrawQuery = `INSERT INTO withdraws (userId, amount, timestamp) VALUES (${userId}, ${amount}, '${timestamp}')`;
+
+    connection.query(insertWithdrawQuery, (err) => {
+      if (err) {
+        console.error('Erreur lors de l\'insertion du retrait :', err);
+        res.status(500).json({ message: 'Une erreur est survenue lors du retrait.' });
+        return;
+      }
+
+      // Le retrait a été inséré avec succès, renvoyer une réponse avec un message de succès
+      res.json({ message: 'Retrait effectué avec succès!' });
+    
+  });
+});
 
 /////////////////////////transfer 
 
@@ -331,3 +372,133 @@ if (parseFloat(user.balance) < parseFloat(transferAmount)) {
     });
   });
 });
+
+/////////////////////// client register
+
+// Exemple de route GET pour accéder à la page client/register depuis client/login
+app.get('/client/register', (req, res) => {
+  try {
+    // Code pour récupérer les informations nécessaires pour la page client/register
+    // Ici, nous pouvons simplement renvoyer un message indiquant que c'est la page client/register
+    res.json({ message: 'Client register page' });
+  } catch (error) {
+    console.error('Erreur lors de l\'accès à la page client/register :', error);
+    res.status(500).json({ message: 'Une erreur est survenue lors de l\'accès à la page client/register.' });
+  }
+});
+
+// Exemple de route POST pour l'enregistrement du client
+// It expects the request body to contain data for creating a new user.
+app.post('/client/register', (req, res) => {
+
+  const newUser = req.body; // Extract the new user data from the request body
+  
+  // Define the SQL query to insert the new user into the 'users' table
+  const query = 'INSERT INTO client SET ?';
+
+  const username=newUser.username; // Extract the username from the new user data
+
+  // Define the SQL query to retrieve the newly added user
+  const query1 = 'SELECT * FROM client WHERE username = ?';
+
+  // Execute the first query to insert the new user into the database
+  connection.query(query, [newUser], (err, results) => {
+    if (err) {
+      // If an error occurs during the query execution, log the error and send a response with an error message
+      console.error('Error in request execution', err);
+      res.status(500); // Set the response status to 500 (Internal Server Error)
+      return res.send({ error: 'An error occurred adding new user' });
+    }
+
+    // Execute the second query to retrieve the newly added user from the database
+    connection.query(query1, username, (err, results1) => {
+      if (err) {
+            // If an error occurs during the query execution, log the error and send a response with an error message
+        console.error('Error in request execution', err);
+        res.status(500); // Set the response status to 500 (Internal Server Error)
+        return res.send({ error: 'An error occurred getting user' });
+      }
+
+      const user=results1;
+      res.status(200); //Set the response status to 200 (OK)
+      res.send(user);});  // Retrieve the user details from the query results
+  });
+});
+
+app.post('/client/register/password', (req, res) => {
+
+  const new_user_pass=req.body; // Extract the data from the request body
+
+  // Define the SQL query to insert the new user password into the 
+  const query = 'INSERT INTO client_password SET ?';
+
+  // Execute the SQL query with the new user password as a parameter
+  connection.query(query, [new_user_pass], (err, results) => {
+    if (err) {
+      // If an error occurs during the query execution, log the error and send a response with an error message
+      console.error('Error in request execution', err);
+      res.status(500); // Set the response status to 500 (Internal Server Error)
+      return res.send({ error: 'An error occurred while retrieving user details.' });
+    }
+ 
+    // If the query is successful, send a response with the new user password data
+     res.status(200); //Set the response status to 200 (OK)
+     res.send(new_user_pass);
+  });
+});
+
+app.post('/client/register/account', async (req, res) => {
+  const { userId, username } = req.body;
+
+  const accountNumber = await generateUniqueAccountNumber();
+
+  const newAccount = {
+    userId: userId,
+    username: username,
+    accountNumber: accountNumber,
+    balance: 0
+  };
+
+  const query = 'INSERT INTO client_account SET ?';
+
+  connection.query(query, [newAccount], (err, results) => {
+    if (err) {
+      console.error('Error in request execution', err);
+      res.status(500);
+      return res.send({ error: 'An error occurred while inserting new account' });
+    }
+
+    res.status(200).send(newAccount);
+  });
+});
+
+async function generateUniqueAccountNumber() {
+  const existingAccountNumbers = await getExistingAccountNumbers();
+
+  let accountNumber;
+  do {
+    accountNumber = generateRandomAccountNumber();
+  } while (existingAccountNumbers.includes(accountNumber));
+
+  return accountNumber;
+}
+
+function generateRandomAccountNumber() {
+  return Math.floor(100000 + Math.random() * 900000);
+}
+
+function getExistingAccountNumbers() {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT accountNumber FROM client_account';
+
+    connection.query(query, (err, results) => {
+      if (err) {
+        console.error('Error in request execution', err);
+        reject(err);
+      }
+
+      const accountNumbers = results.map(result => result.accountNumber);
+      resolve(accountNumbers);
+    });
+  });
+}

@@ -129,7 +129,29 @@ export function ClientWithdrawal() {
       console.error('Erreur lors de la demande de retrait :', error);
       alert('Une erreur est survenue lors du retrait.');
     }
+
+
+    const requestOptionsinfo = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, amount }),
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/client/withdrawal', requestOptionsinfo);
+      const data = await response.json();
+
+      // Afficher le message de succès et réinitialiser le champ du montant
+    
+      setWithdrawalAmount('');
+    } catch (error) {
+      console.error('Erreur lors de la demande de retrait :', error);
+      alert('Une erreur est survenue lors du retrait.');
+    }
+
+    
   };
+  
 
   return (
     <div>
@@ -175,9 +197,11 @@ export function ClientWithdrawal() {
                 fullWidth
                 variant="outlined"
               />
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
               <Button type="submit" variant="contained" className={classes.submitButton}>
-                Submit
+               withdraw
               </Button>
+              </div>
             </form>
           </div>
         </Grid>
