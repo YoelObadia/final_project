@@ -16,7 +16,7 @@ const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   port: 3306,
-  password: 'Yoyo5555badia()',
+  password: 'computer',
   database: 'fs7',
 });
 
@@ -373,6 +373,79 @@ if (parseFloat(user.balance) < parseFloat(transferAmount)) {
   });
 });
 
+
+app.post('/client/transfershared', async (req, res) => {
+  const { userId, amount, reason, receiverAccountNumber } = req.body;
+  const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+  // Récupérer le senderAccountNumber depuis la base de données en utilisant le userId
+  const selectSenderAccountNumberQuery = `SELECT accountNumber FROM client_account WHERE userId = '${userId}'`;
+
+  // Récupérer le userIdReceiver depuis la base de données en utilisant le receiverAccountNumber
+  const selectUserIdReceiverQuery = `SELECT userId FROM client_account WHERE accountNumber = '${receiverAccountNumber}'`;
+
+  // Exécuter les requêtes pour récupérer les valeurs
+  let senderAccountNumber, userIdReceiver;
+  try {
+    [senderAccountNumberRows] = await connection.promise().query(selectSenderAccountNumberQuery);
+    [userIdReceiverRows] = await connection.promise().query(selectUserIdReceiverQuery);
+
+    // Vérifier si les résultats des requêtes sont valides
+    if (!senderAccountNumberRows.length || !userIdReceiverRows.length) {
+      throw new Error("Les informations du compte ne sont pas valides.");
+    }
+
+    senderAccountNumber = senderAccountNumberRows[0].accountNumber;
+    userIdReceiver = userIdReceiverRows[0].userId;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des informations du compte :', error);
+    res.status(500).json({ message: 'Une erreur est survenue lors du transfert.' });
+    return;
+  }
+
+  // Insérer dans la table "shared_transfers"
+  const insertSharedTransfersQuery = `INSERT INTO shared_transfers (userId, amount, reason, receiverAccountNumber, timestamp) VALUES (${userId}, ${amount}, '${reason}', '${receiverAccountNumber}', '${timestamp}')`;
+
+  // Insérer dans la table "received_transfers" pour le destinataire
+  const insertReceivedTransfersQuery = `INSERT INTO received_transfers (userId, amount, reason, senderAccountNumber, timestamp) VALUES (${userIdReceiver}, ${amount}, '${reason}', '${senderAccountNumber}', '${timestamp}')`;
+
+  // Exécuter les deux requêtes d'insertion dans le cadre d'une transaction
+  connection.beginTransaction(async (err) => {
+    if (err) {
+      console.error('Erreur lors du début de la transaction :', err);
+      res.status(500).json({ message: 'Une erreur est survenue lors du transfert.' });
+      return;
+    }
+
+    try {
+      await connection.promise().query(insertSharedTransfersQuery);
+      await connection.promise().query(insertReceivedTransfersQuery);
+
+      // Valider la transaction
+      connection.commit((err) => {
+        if (err) {
+          console.error('Erreur lors de la confirmation de la transaction :', err);
+          connection.rollback(() => {
+            res.status(500).json({ message: 'Une erreur est survenue lors du transfert.' });
+          });
+          return;
+        }
+
+        // Transaction validée avec succès, envoyer une réponse de succès
+        res.json({ message: 'Transfert effectué avec succès!' });
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'insertion du transfert :', error);
+      connection.rollback(() => {
+        res.status(500).json({ message: 'Une erreur est survenue lors du transfert.' });
+      });
+    }
+  });
+});
+
+
+
+
 /////////////////////// client register
 
 // Exemple de route GET pour accéder à la page client/register depuis client/login
@@ -502,3 +575,79 @@ function getExistingAccountNumbers() {
     });
   });
 }
+
+
+
+
+/////////////////////////////client transactions
+
+// Endpoint to fetch transactions for a specific userId
+app.get('/client/transactions/:userId', (req, res) => {
+  const { userId } = req.params;
+  const { filter } = req.query;
+  let sql;
+  let params = [userId, userId, userId, userId];
+
+  switch (filter) {
+    case 'deposit':
+      sql = `
+        SELECT 'Deposit' AS transactionType, amount, timestamp, null AS reason, null AS receiverAccountNumber
+        FROM deposits
+        WHERE userId = ?
+        ORDER BY timestamp DESC
+      `;
+      break;
+    case 'withdraw':
+      sql = `
+        SELECT 'Withdraw' AS transactionType, amount, timestamp, null AS reason, null AS receiverAccountNumber
+        FROM withdraws
+        WHERE userId = ?
+        ORDER BY timestamp DESC
+      `;
+      break;
+    case 'received':
+      sql = `
+        SELECT 'Received Transfer' AS transactionType, amount, timestamp, reason, senderAccountNumber AS receiverAccountNumber
+        FROM received_transfers
+        WHERE userId = ?
+        ORDER BY timestamp DESC
+      `;
+      break;
+    case 'shared':
+      sql = `
+        SELECT 'Shared Transfer' AS transactionType, amount, timestamp, reason, receiverAccountNumber
+        FROM shared_transfers
+        WHERE userId = ?
+        ORDER BY timestamp DESC
+      `;
+      break;
+    default:
+      sql = `
+        SELECT 'Deposit' AS transactionType, amount, timestamp, null AS reason, null AS receiverAccountNumber
+        FROM deposits
+        WHERE userId = ?
+        UNION ALL
+        SELECT 'Withdraw' AS transactionType, amount, timestamp, null AS reason, null AS receiverAccountNumber
+        FROM withdraws
+        WHERE userId = ?
+        UNION ALL
+        SELECT 'Received Transfer' AS transactionType, amount, timestamp, reason, senderAccountNumber AS receiverAccountNumber
+        FROM received_transfers
+        WHERE userId = ?
+        UNION ALL
+        SELECT 'Shared Transfer' AS transactionType, amount, timestamp, reason, receiverAccountNumber
+        FROM shared_transfers
+        WHERE userId = ?
+        ORDER BY timestamp DESC
+      `;
+  }
+
+  connection.query(sql, params, (err, result) => {
+    if (err) {
+      console.error('Error fetching transactions:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json(result);
+    }
+  });
+});

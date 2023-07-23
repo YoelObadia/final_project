@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useState, useEffect, createContext } from "react";
-import { AppBar, Toolbar, Typography, Button, makeStyles, Grid } from "@material-ui/core";
+import { useState, useEffect } from "react";
+import { AppBar, Toolbar, Typography, Button, makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, FormControl, InputLabel, Select, MenuItem } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -85,57 +85,53 @@ const useStyles = makeStyles((theme) => ({
     flexBasis: '500px',
     marginRight: theme.spacing(2),
   },
+
+  filterContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    marginBottom: theme.spacing(2),
+  },
+  filterLabel: {
+    marginBottom: theme.spacing(1),
+  },
 }));
 
-export const EssaiContext = createContext();
 
-export function Transactions() {
+export function Transactions({ userId }) {
   const user = JSON.parse(localStorage.getItem("currentUser"));
   const [current_user] = useState(user);
   const navigate = useNavigate();
   const classes = useStyles();
-  const [depositInfo, setDepositInfo] = useState([]);
-  const [withdrawalInfo, setWithdrawalInfo] = useState([]);
-  const [sharedSendInfo, setSharedSendInfo] = useState([]);
-  const [sharedReceivedInfo, setSharedReceivedInfo] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [filter, setFilter] = useState('all');
+  userId = current_user.id;
 
   useEffect(() => {
-    fetch("/api/deposit")
-      .then((response) => response.json())
-      .then((data) => {
-        setDepositInfo(data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`/client/transactions/${userId}?filter=${filter}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-    fetch("/api/withdrawal")
-      .then((response) => response.json())
-      .then((data) => {
-        setWithdrawalInfo(data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+        const data = await response.json();
 
-    fetch("/api/shared-send")
-      .then((response) => response.json())
-      .then((data) => {
-        setSharedSendInfo(data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+        if (Array.isArray(data)) {
+          setTransactions(data);
+        } else {
+          setTransactions([]);
+        }
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+        setTransactions([]);
+      }
+    };
 
-    fetch("/api/shared-received")
-      .then((response) => response.json())
-      .then((data) => {
-        setSharedReceivedInfo(data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+    fetchData();
+  }, [userId, filter]);
 
   function Logout(event) {
     event.preventDefault();
@@ -143,13 +139,17 @@ export function Transactions() {
     localStorage.removeItem("currentUser");
   }
 
+  const handleFilterChange = (event) => {
+    setFilter(event.target.value);
+  };
+
   return (
     <div>
       <AppBar position="static" className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
           {current_user && (
             <Typography variant="h6" className={classes.welcome}>
-              Welcome {current_user.name}!
+              Welcome {current_user.firstname} {current_user.lastname}!
             </Typography>
           )}
           <div className={classes.navLinkContainer}>
@@ -171,58 +171,47 @@ export function Transactions() {
           </div>
         </Toolbar>
       </AppBar>
-      <Grid container spacing={2} justifyContent="center" alignItems="center" style={{ height: '100vh' }}>
-        <Grid item xs={12} sm={6} md={6}>
-          <div className={`${classes.square} ${classes.largeSquare}`}>
-            <Typography variant="h6">Deposit</Typography>
-            <ul>
-              {depositInfo.map((deposit) => (
-                <li key={deposit.id}>
-                  Amount: {deposit.amount}, Date: {deposit.timestamp}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Grid>
-        <Grid item xs={12} sm={6} md={6}>
-          <div className={`${classes.square1} ${classes.largeSquare}`}>
-            <Typography variant="h6">Withdrawal</Typography>
-            <ul>
-              {withdrawalInfo.map((withdrawal) => (
-                <li key={withdrawal.id}>
-                  Amount: {withdrawal.amount}, Timestamp: {withdrawal.timestamp}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Grid>
-        <Grid item xs={12} sm={6} md={6}>
-          <div className={classes.square2}>
-            <Typography variant="h6">Shared Send</Typography>
-            <ul>
-              {sharedSendInfo.map((sharedSend) => (
-                <li key={sharedSend.id}>
-                  Amount: {sharedSend.amount}, Reason: {sharedSend.reason}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Grid>
-        <Grid item xs={12} sm={6} md={6}>
-          <div className={classes.square3}>
-            <Typography variant="h6">Shared Received</Typography>
-            <ul>
-              {sharedReceivedInfo.map((sharedReceived) => (
-                <li key={sharedReceived.id}>
-                  Amount: {sharedReceived.amount}, Reason: {sharedReceived.reason}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Grid>
-      </Grid>
+      <div className={classes.filterContainer}>
+        <InputLabel className={classes.filterLabel}>Filter</InputLabel>
+        <FormControl>
+          <Select value={filter} onChange={handleFilterChange}>
+            <MenuItem value="all">All Transactions</MenuItem>
+            <MenuItem value="deposit">Deposits</MenuItem>
+            <MenuItem value="withdraw">Withdraws</MenuItem>
+            <MenuItem value="received">Received Transfers</MenuItem>
+            <MenuItem value="shared">Shared Transfers</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Transaction Type</TableCell>
+              <TableCell>Amount</TableCell>
+              <TableCell>Timestamp</TableCell>
+              <TableCell>Reason</TableCell>
+              <TableCell>Account Number</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {transactions.map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell>{transaction.transactionType}</TableCell>
+                <TableCell>{transaction.amount}</TableCell>
+                <TableCell>{transaction.timestamp}</TableCell>
+                <TableCell>{transaction.reason}</TableCell>
+                <TableCell>{transaction.receiverAccountNumber}</TableCell>
+                {transaction.transactionType === 'Received Transfer' && (
+                  <TableCell>{transaction.senderAccountNumber}</TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 }
 
-export default Transactions;
+export default Transactions;

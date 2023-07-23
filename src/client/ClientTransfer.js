@@ -79,6 +79,7 @@ export function ClientTransfer() {
   const [transferAmount, setTransferAmount] = useState('');
   const [paymentReason, setPaymentReason] = useState('');
   const [recipientAccountNumber, setRecipientAccountNumber] = useState('');
+  const [senderAccountNumber, setsenderAccountNumber] = useState('');
   const [transferMessage, setTransferMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -124,6 +125,7 @@ export function ClientTransfer() {
           transferAmount,
           paymentReason,
           recipientAccountNumber,
+          senderAccountNumber,
         }),
       });
 
@@ -133,6 +135,7 @@ export function ClientTransfer() {
         setTransferAmount('');
         setPaymentReason('');
         setRecipientAccountNumber('');
+        setsenderAccountNumber('');
         setErrorMessage('');
       } else {
         const data = await response.json();
@@ -142,6 +145,45 @@ export function ClientTransfer() {
       console.error('Erreur lors du transfert:', error);
       setErrorMessage('Une erreur est survenue lors du transfert. Veuillez réessayer plus tard.');
     }
+
+
+    
+
+
+ 
+
+    // Appel de l'API pour insérer le transfert partagé
+    const requestOptionsinfoshared = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        userId: current_user.id,
+        amount: transferAmount,
+        reason: paymentReason,
+        receiverAccountNumber: recipientAccountNumber,
+        //senderAccountNumber: current_user.id.senderAccountNumber,
+      }),
+    };
+    
+  
+    try {
+      const response = await fetch('http://localhost:3000/client/transfershared', requestOptionsinfoshared);
+      const data = await response.json();
+  
+      // Afficher le message de succès et réinitialiser le champ du montant
+      alert(data.message);
+      setTransferMessage('Transfert partagé effectué avec succès!');
+      setTransferAmount('');
+      setPaymentReason('');
+      setRecipientAccountNumber('');
+    } catch (error) {
+      console.error('Erreur lors de la demande du transfert :', error);
+      alert('Une erreur est survenue lors du transfert.');
+    }
+
+    
+  
+  
   };
 
   return (
@@ -150,7 +192,7 @@ export function ClientTransfer() {
         <Toolbar className={classes.toolbar}>
           {current_user && (
             <Typography variant="h6" className={classes.welcome}>
-              Welcome {current_user.name}!
+              Welcome {current_user.firstname} {current_user.lastname}!
             </Typography>
           )}
           <div className={classes.navLinkContainer}>

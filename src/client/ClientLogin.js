@@ -4,8 +4,8 @@ import { Grid, TextField, Button } from '@material-ui/core';
 
 function ClientLogin() {
   const navigate = useNavigate();
-  const [username, setUsername] = React.useState('Brandt46521');
-  const [password, setPassword] = React.useState('PzOdLhU9cOeGrWu');
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
 
   const handleLogin = async () => {
     try {

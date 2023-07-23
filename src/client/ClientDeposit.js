@@ -166,7 +166,7 @@ export function ClientDeposit() {
         <Toolbar className={classes.toolbar}>
           {current_user && (
             <Typography variant="h6" className={classes.welcome}>
-              Welcome {current_user.name}!
+              Welcome {current_user.firstname} {current_user.lastname}!
             </Typography>
           )}
           <div className={classes.navLinkContainer}>
