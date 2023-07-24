@@ -16,7 +16,7 @@ const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   port: 3306,
-  password: 'Yoyo5555badia()',
+  password: 'computer',
   database: 'fs7',
 });
 
@@ -87,7 +87,103 @@ app.post('/admin/login', (req, res) => {
   });
 });
 
+//////////////////////////////////////////////////customer info
+  app.get('/api/clients', (req, res) => {
+    const sql = 'SELECT * FROM client';
+
+    connection.query(sql, (err, results) => {
+      if (err) {
+        console.error('Error fetching clients from the database:', err);
+        res.status(500).json({ error: 'Failed to fetch clients from the database.' });
+        return;
+      }
+
+      res.json(results);
+    });
+  });
+
+
+
+
+  ////////////////////////////////////////////////transactions
+
+
+  app.get('/admin/transactions/:userId', (req, res) => {
+    const { userId } = req.params;
+    const { filter } = req.query;
+    let sql;
+    let params = [userId, userId, userId, userId];
+  
+    switch (filter) {
+      case 'deposit':
+        sql = `
+          SELECT 'Deposit' AS transactionType, amount, timestamp, null AS reason, null AS receiverAccountNumber
+          FROM deposits
+          WHERE userId = ?
+          ORDER BY timestamp DESC
+        `;
+        break;
+      case 'withdraw':
+        sql = `
+          SELECT 'Withdraw' AS transactionType, amount, timestamp, null AS reason, null AS receiverAccountNumber
+          FROM withdraws
+          WHERE userId = ?
+          ORDER BY timestamp DESC
+        `;
+        break;
+      case 'received':
+        sql = `
+          SELECT 'Received Transfer' AS transactionType, amount, timestamp, reason, senderAccountNumber AS receiverAccountNumber
+          FROM received_transfers
+          WHERE userId = ?
+          ORDER BY timestamp DESC
+        `;
+        break;
+      case 'shared':
+        sql = `
+          SELECT 'Shared Transfer' AS transactionType, amount, timestamp, reason, receiverAccountNumber
+          FROM shared_transfers
+          WHERE userId = ?
+          ORDER BY timestamp DESC
+        `;
+        break;
+      default:
+        sql = `
+          SELECT 'Deposit' AS transactionType, amount, timestamp, null AS reason, null AS receiverAccountNumber
+          FROM deposits
+          WHERE userId = ?
+          UNION ALL
+          SELECT 'Withdraw' AS transactionType, amount, timestamp, null AS reason, null AS receiverAccountNumber
+          FROM withdraws
+          WHERE userId = ?
+          UNION ALL
+          SELECT 'Received Transfer' AS transactionType, amount, timestamp, reason, senderAccountNumber AS receiverAccountNumber
+          FROM received_transfers
+          WHERE userId = ?
+          UNION ALL
+          SELECT 'Shared Transfer' AS transactionType, amount, timestamp, reason, receiverAccountNumber
+          FROM shared_transfers
+          WHERE userId = ?
+          ORDER BY timestamp DESC
+        `;
+    }
+  
+    connection.query(sql, params, (err, result) => {
+      if (err) {
+        console.error('Error fetching transactions:', err);
+        res.status(500).json({ error: 'Internal server error' });
+      } else {
+        res.json(result);
+      }
+    });
+  });
+  
+
+
 // Démarre le serveur sur le port 3000
 app.listen(3000, () => {
   console.log('Serveur démarré sur le port 3000');
 });
+
+
+
