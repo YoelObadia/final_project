@@ -16,7 +16,7 @@ const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   port: 3306,
-  password: 'computer',
+  password: 'Yoyo5555badia()',
   database: 'fs7',
 });
 
@@ -31,11 +31,7 @@ connection.connect((err) => {
 
 // Définir les routes de l'API
 
-// Exemple de route GET
-app.get('/admin/login', (req, res) => {
-  // Code pour la gestion de la connexion admin
-  res.json({ message: 'Admin login' });
-});
+
 
 // Exemple de route GET pour accéder à la page client/login depuis client/register
 app.get('/client/login', (req, res) => {
@@ -282,7 +278,7 @@ app.get('/client/transfer', (req, res) => {
 
 // Exemple de route PUT pour le transfert du client
 app.put('/client/transfer', (req, res) => {
-  const { userId, transferAmount, paymentReason, recipientAccountNumber } = req.body;
+  const { userId, transferAmount, recipientAccountNumber } = req.body;
 
   // Vérifier que l'utilisateur existe dans la base de données avant de procéder au transfert
   const checkUserQuery = `SELECT id, balance FROM client_account WHERE userId = ${userId}`;
@@ -387,8 +383,8 @@ app.post('/client/transfershared', async (req, res) => {
   // Exécuter les requêtes pour récupérer les valeurs
   let senderAccountNumber, userIdReceiver;
   try {
-    [senderAccountNumberRows] = await connection.promise().query(selectSenderAccountNumberQuery);
-    [userIdReceiverRows] = await connection.promise().query(selectUserIdReceiverQuery);
+    const [senderAccountNumberRows] = await connection.promise().query(selectSenderAccountNumberQuery);
+    const [userIdReceiverRows] = await connection.promise().query(selectUserIdReceiverQuery);
 
     // Vérifier si les résultats des requêtes sont valides
     if (!senderAccountNumberRows.length || !userIdReceiverRows.length) {

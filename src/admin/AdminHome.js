@@ -35,15 +35,15 @@ const useStyles = makeStyles((theme) => ({
 export const EssaiContext = createContext();
 
 export function AdminHome() {
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  const [current_user] = useState(user);
+  const admin = JSON.parse(localStorage.getItem("currentAdmin"));
+  const [current_admin] = useState(admin);
   const navigate = useNavigate();
   const classes = useStyles();
 
   function Logout(event) {
     event.preventDefault();
+    localStorage.removeItem("currentAdmin");
     navigate("/");
-    localStorage.removeItem("currentUser");
   }
 
   return (
@@ -51,11 +51,10 @@ export function AdminHome() {
       <AppBar position="static" className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
         <Typography variant="h6" className={classes.welcome}>
-            Welcome [Username]!
           </Typography>
-          {current_user && (
+          {current_admin && (
             <Typography variant="h6" className={classes.welcome}>
-              Welcome {current_user.name}!
+              Welcome {current_admin.firstname} {current_admin.lastname}!
             </Typography>
           )}
           <div className={classes.navLinkContainer}>
@@ -70,9 +69,6 @@ export function AdminHome() {
             </NavLink>
             <NavLink className={classes.navLink} to="/admin/addAdmin">
               Add Administrator
-            </NavLink>
-            <NavLink className={classes.navLink} to="/admin/customerAccount">
-              Accounts
             </NavLink>
             <Button className={classes.logoutButton} color="inherit" onClick={Logout}>
               Logout
