@@ -34,9 +34,9 @@ function ClientRegister() {
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [givenUserId, setGivenUserId] = useState(0);
+  const [ , setGivenUserId] = useState(0);
   const [isRegister, setIsRegister] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [ , setCurrentUser] = useState(null);
 
   const handleGoBack = () => {
     navigate('/client/login');
@@ -151,6 +151,7 @@ function ClientRegister() {
 
       const data1 = await response1.json();
       localStorage.setItem('currentUser', JSON.stringify(data[0]));
+      console.log(data1);
 
       const newAccount = {
         userId: newUserId,
@@ -278,4 +279,4 @@ function ClientRegister() {
   }
 }
 
-export default ClientRegister;
+export default ClientRegister;

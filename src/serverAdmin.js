@@ -16,7 +16,7 @@ const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   port: 3306,
-  password: 'computer',
+  password: 'Yoyo5555badia()',
   database: 'fs7',
 });
 
@@ -87,8 +87,54 @@ app.post('/admin/login', (req, res) => {
   });
 });
 
+
+///////////////////////////// add admin
+// ...
+
+app.post('/admin/addadmin', (req, res) => {
+  const newAdmin = req.body;
+
+  const insertAdminQuery = 'INSERT INTO admin (firstname, lastname, phone, email, address, username) VALUES (?, ?, ?, ?, ?, ?)';
+
+  connection.query(
+    insertAdminQuery,
+    [newAdmin.firstname, newAdmin.lastname, newAdmin.phone, newAdmin.email, newAdmin.address, newAdmin.username],
+    (err, result) => {
+      if (err) {
+        console.error('Erreur lors de l\'exécution de la requête pour insérer le nouvel administrateur', err);
+        res.status(500).send({ error: 'Une erreur est survenue lors de l\'ajout du nouvel administrateur' });
+        return;
+      }
+
+      console.log('Nouvel administrateur ajouté avec succès !');
+      res.status(200).send({ insertId: result.insertId });
+    }
+  );
+});
+
+// Route pour ajouter le nom d'utilisateur et le mot de passe dans la table 'admin_password'
+app.post('/admin/addadmin/password', (req, res) => {
+  const newAdminPassword = req.body;
+
+  const insertAdminPasswordQuery = 'INSERT INTO admin_password (userId, username, password) VALUES (?, ?, ?)';
+
+  connection.query(insertAdminPasswordQuery, [newAdminPassword.userId, newAdminPassword.username, newAdminPassword.password], (err) => {
+    if (err) {
+      console.error('Erreur lors de l\'exécution de la requête pour insérer le nom d\'utilisateur et le mot de passe de l\'administrateur', err);
+      res.status(500).send({ error: 'Une erreur est survenue lors de l\'ajout du nom d\'utilisateur et du mot de passe de l\'administrateur' });
+      return;
+    }
+
+    console.log('Nom d\'utilisateur et mot de passe administrateur ajoutés avec succès !');
+    res.status(200).send({ success: true });
+  });
+});
+
 //////////////////////////////////////////////////customer info
-  app.get('/api/clients', (req, res) => {
+  
+
+
+  app.get('/admin/customerInfo', (req, res) => {
     const sql = 'SELECT * FROM client';
 
     connection.query(sql, (err, results) => {
@@ -102,10 +148,21 @@ app.post('/admin/login', (req, res) => {
     });
   });
 
-
-
-
   ////////////////////////////////////////////////transactions
+
+  app.get('/admin/transaction', (req, res) => {
+    const sql = 'SELECT * FROM client';
+
+    connection.query(sql, (err, results) => {
+      if (err) {
+        console.error('Error fetching clients from the database:', err);
+        res.status(500).json({ error: 'Failed to fetch clients from the database.' });
+        return;
+      }
+
+      res.json(results);
+    });
+  });
 
 
   app.get('/admin/transactions/:userId', (req, res) => {

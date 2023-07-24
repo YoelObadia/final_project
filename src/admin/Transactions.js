@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   Grid,
@@ -130,10 +129,14 @@ function Transactions() {
   };
   const getClients = async () => {
     try {
-      const response = await axios.get('/api/clients'); // En supposant que votre point d'accès API serveur est '/api/clients'
-      return response.data;
+      const response = await fetch('/admin/transaction');
+      if (!response.ok) {
+        throw new Error('Error fetching clients from the server.');
+      }
+      const data = await response.json();
+      return data;
     } catch (error) {
-      console.error('Erreur lors de la récupération des clients depuis le serveur :', error);
+      console.error('Error fetching clients from the server:', error);
       return [];
     }
   };
@@ -153,13 +156,18 @@ function Transactions() {
     setSelectedClient(client);
   
     try {
-      const response = await axios.get(`/admin/transactions/${client.id}`);
-      setTransactions(response.data);
+      const response = await fetch(`/admin/transactions/${client.id}`);
+      if (!response.ok) {
+        throw new Error('Error fetching transactions from the server.');
+      }
+      const data = await response.json();
+      setTransactions(data);
     } catch (error) {
       console.error('Error fetching transactions from the server:', error);
       setTransactions([]); // Clear transactions in case of an error
     }
   };
+  
   
 
   const renderClientList = () => {
