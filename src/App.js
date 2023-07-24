@@ -15,7 +15,6 @@ import CustomerInfo from './admin/CustomerInfo';
 import Transfer from './admin/Transfer';
 import Transactions from './admin/Transactions';
 import AddAdmin from './admin/AddAdmin';
-import CustomerAccount from './admin/CustomerAccount';
 
 function App() {
   return (
@@ -36,7 +35,6 @@ function App() {
           <Route path="/admin/transfer" element={<Transfer />} />
           <Route path="/admin/transactions" element={<Transactions />} />
           <Route path="/admin/addAdmin" element={<AddAdmin />} />
-          <Route path="/admin/customerAccount" element={<CustomerAccount />} />
         </Routes>
       </Container>
     </Router>
