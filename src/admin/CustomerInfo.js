@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+
 import {
   Grid,
   Typography,
@@ -8,7 +9,15 @@ import {
   makeStyles,
   Button,
   Paper,
+  TextField,
+  IconButton,
 } from '@material-ui/core';
+import SearchIcon from '@material-ui/icons/Search';
+import PersonIcon from '@material-ui/icons/Person'; // Import the Person icon from Material-UI
+import PhoneIcon from '@material-ui/icons/Phone';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import MailIcon from '@material-ui/icons/Mail';
+
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -27,19 +36,19 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.shape.borderRadius,
   },
   toolbar: {
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
   },
   welcome: {
     marginRight: theme.spacing(4),
   },
   navLinkContainer: {
-    display: "flex",
-    alignItems: "center",
+    display: 'flex',
+    alignItems: 'center',
   },
   logoutButton: {
     marginLeft: theme.spacing(2),
     color: theme.palette.common.white,
-  },
+  },
   searchContainer: {
     height: 'calc(100vh - 160px)',
     display: 'flex',
@@ -48,6 +57,7 @@ const useStyles = makeStyles((theme) => ({
   },
   searchForm: {
     display: 'flex',
+    marginLeft:'30%',
     alignItems: 'center',
     padding: theme.spacing(2),
     borderRadius: theme.shape.borderRadius,
@@ -59,6 +69,15 @@ const useStyles = makeStyles((theme) => ({
         borderColor: theme.palette.secondary.main,
       },
     },
+    // Animation
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    width: '200px', // Initial width of the search form
+  },
+  searchFormActive: {
+    width: '300px', // Width of the search form after clicking on it
   },
   searchInput: {
     marginRight: theme.spacing(2),
@@ -72,6 +91,7 @@ const useStyles = makeStyles((theme) => ({
   searchButton: {
     backgroundColor: 'maroon',
     color: 'white',
+    marginLeft: 'auto',
   },
   // New styles for the client list and client details
   clientListContainer: {
@@ -79,7 +99,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     height: 'calc(100vh - 160px)',
     overflowY: 'scroll',
-    marginleft: theme.spacing(2),
+    marginLeft: '-50%', // Change 'marginleft' to 'marginLeft'
   },
   clientItem: {
     cursor: 'pointer',
@@ -89,36 +109,59 @@ const useStyles = makeStyles((theme) => ({
     alignContent: 'center',
   },
   clientDetailsContainer: {
-    marginLeft: theme.spacing(2),
+    marginLeft: '50%', // Change 'marginleft' to 'marginLeft
+    width: '100%',
+    marginTop: '10%',
+  },
+  clientDetailTitle: {
+    fontWeight: 'bold',
+    fontSize: '30px',
+    alignItems: 'center',
+    textAlign: 'center',
+    textDecoration: 'underline',
+    textDecorationColor: 'maroon',
+    marginBottom: theme.spacing(4),
+    marginLeft: '-40%',
+  },
+  clientDetailItem: {
+    display: 'flex',
+    alignItems: 'left',
+    marginBottom: theme.spacing(1),
+  },
+  clientDetailIcon: {
+    marginRight: theme.spacing(0),
+    alignContent: 'center',
   },
 }));
 
 function CustomerInfo() {
   const classes = useStyles();
-  const [clients, setClients] = useState([]); // To store the list of clients
+  const [clients, setClients] = useState([]);
   const [filteredClients, setFilteredClients] = useState([]);
-  const [selectedClient, setSelectedClient] = useState(null); // To store the selected client
+  const [selectedClient, setSelectedClient] = useState(null);
   const navigate = useNavigate();
-  const admin = JSON.parse(localStorage.getItem("currentAdmin"));
+  const admin = JSON.parse(localStorage.getItem('currentAdmin'));
   const [current_admin] = useState(admin);
+  const [searchFormActive, setSearchFormActive] = useState(false); // To handle the active state of the search form
 
   useEffect(() => {
-    // Fetch clients from the database and populate the 'clients' state
     getClientsFromDatabase();
   }, []);
 
   function Logout(event) {
     event.preventDefault();
-    localStorage.removeItem("currentAdmin");
-    navigate("/");
+    localStorage.removeItem('currentAdmin');
+    navigate('/');
   }
+
   const getClientsFromDatabase = async () => {
-    // You need to implement this function to fetch clients from the database
+    // Implement this function to fetch clients from the database
     // For simplicity, we'll assume it returns an array of clients
     const fetchedClients = await getClients();
     setClients(fetchedClients);
     setFilteredClients(fetchedClients); // Initially, the filtered list is the same as the complete list
   };
+
   const getClients = async () => {
     try {
       const response = await fetch('/admin/customerInfo');
@@ -132,8 +175,8 @@ function CustomerInfo() {
       return [];
     }
   };
+
   const handleSearchChange = (event) => {
-    // Filter clients based on search input
     const searchQuery = event.target.value.toLowerCase();
     const filtered = clients.filter(
       (client) =>
@@ -144,7 +187,6 @@ function CustomerInfo() {
   };
 
   const handleClientItemClick = (client) => {
-    // Handle client item click to show client details
     setSelectedClient(client);
   };
 
@@ -165,13 +207,51 @@ function CustomerInfo() {
 
     return (
       <div className={classes.clientDetailsContainer}>
-        <Typography variant="h6">Client Information</Typography>
-        <Typography>{`First Name: ${selectedClient.firstname}`}</Typography>
-        <Typography>{`Last Name: ${selectedClient.lastname}`}</Typography>
-        <Typography>{`Phone: ${selectedClient.phone}`}</Typography>
-        <Typography>{`Email: ${selectedClient.email}`}</Typography>
-        <Typography>{`Address: ${selectedClient.address}`}</Typography>
-        <Typography>{`Username: ${selectedClient.username}`}</Typography>
+        <Typography variant="h6" className={classes.clientDetailTitle}>
+          Client Information
+        </Typography>
+        <div className={classes.clientDetailItem}style={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton className={classes.clientDetailIcon}>
+            <PersonIcon />
+          </IconButton>
+          <Typography style={{ fontWeight: 'bold' }}>{`  First Name:`}</Typography>
+          <Typography>&nbsp;{`  ${selectedClient.firstname}`}</Typography>
+        </div>
+        <div className={classes.clientDetailItem}style={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton className={classes.clientDetailIcon}>
+            <PersonIcon />
+          </IconButton>
+          <Typography style={{ fontWeight: 'bold' }}>{`Last Name :`}</Typography>
+          <Typography>&nbsp;{`  ${selectedClient.lastname}`}</Typography>
+        </div>
+        <div className={classes.clientDetailItem}style={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton className={classes.clientDetailIcon}>
+            <PhoneIcon />
+          </IconButton>
+          <Typography style={{ fontWeight: 'bold' }}>{`Phone: `}</Typography>
+          <Typography>&nbsp;{`  ${selectedClient.phone}`}</Typography>
+        </div>
+        <div className={classes.clientDetailItem}style={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton className={classes.clientDetailIcon}>
+            <MailIcon />
+          </IconButton>
+          <Typography style={{ fontWeight: 'bold' }}>{`Email: `}</Typography>
+          <Typography>&nbsp;{`  ${selectedClient.email}`}</Typography>
+        </div>
+        <div className={classes.clientDetailItem}style={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton className={classes.clientDetailIcon}>
+            <LocationOnIcon />
+          </IconButton>
+          <Typography style={{ fontWeight: 'bold' }}>{`Address: `}</Typography>
+          <Typography>&nbsp;{`  ${selectedClient.address}`}</Typography>
+        </div>
+        <div className={classes.clientDetailItem}style={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton className={classes.clientDetailIcon}>
+            <PersonIcon />
+          </IconButton>
+          <Typography style={{ fontWeight: 'bold' }}>{`Username:`}</Typography>
+          <Typography>&nbsp;{`  ${selectedClient.username}`}</Typography>
+        </div>
       </div>
     );
   };
@@ -185,11 +265,10 @@ function CustomerInfo() {
     <Grid container direction="column" spacing={2}>
       <AppBar position="static" className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
-        <Typography variant="h6" className={classes.welcome}>
-          </Typography>
+          <Typography variant="h6" className={classes.welcome}></Typography>
           {current_admin && (
             <Typography variant="h6" className={classes.welcome}>
-              Welcome {current_admin.firstname} {current_admin.lastname}!
+              {current_admin.firstname} {current_admin.lastname}
             </Typography>
           )}
           <div className={classes.navLinkContainer}>
@@ -211,26 +290,34 @@ function CustomerInfo() {
           </div>
         </Toolbar>
       </AppBar>
-     
-       {/* Search form */}
-        <form className={classes.searchForm}>
-          <input
-            type="text"
-            placeholder="Search by name..."
-            className={classes.searchInput}
-            onChange={handleSearchChange}
-          />
-          <Button
-            variant="contained"
-            className={classes.searchButton}
-            onClick={handleSearchChange}
-          >
-            Search
-          </Button>
-        </form>
-      <Grid item container alignItems="center">
+
+      {/* Animated Search form */}
+      <form
+        className={`${classes.searchForm} ${
+          searchFormActive ? classes.searchFormActive : ''
+        }`}
+      >
+        <TextField
+          type="text"
+          placeholder="Search by name..."
+          className={classes.searchInput}
+          onFocus={() => setSearchFormActive(true)}
+          onBlur={() => setSearchFormActive(false)}
+          onChange={handleSearchChange}
+          variant="outlined"
+          InputProps={{
+            endAdornment: (
+              <IconButton onClick={handleSearchChange}>
+                <SearchIcon />
+              </IconButton>
+            ),
+          }}
+        />
+      </form>
+
+      <Grid item container alignItems="flex-start">
         {/* Left side with client list */}
-        <Grid item xs={12} sm={6} md={4} className={classes.clientListContainer}>
+        <Grid item xs={12} sm={6} md={7} className={classes.clientListContainer}>
           {renderClientList()}
         </Grid>
 

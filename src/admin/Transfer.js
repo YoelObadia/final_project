@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { NavLink, useNavigate } from "react-router-dom";
-import { Grid, Typography, AppBar, Toolbar, makeStyles, TextField, Button } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Grid, Typography, AppBar, Toolbar, makeStyles, TextField, Button, Paper } from '@material-ui/core';
+
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
     backgroundColor: 'maroon',
     width: '1535px',
-    alignContent:'center',
-    alignItems:'center',
-    margin:'auto',
-    marginLeft:'-500px'
+    alignContent: 'center',
+    alignItems: 'center',
+    margin: 'auto',
+    marginLeft: '-500px'
   },
   navLink: {
     textDecoration: 'none',
@@ -51,13 +52,30 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: 'maroon',
     color: 'white',
   },
+  // New styles for the container and list items
+  transferContainer: {
+    background: 'rgba(178, 34, 34, 0.2)', // Bordeaux transparent color
+    padding: theme.spacing(2),
+    height: 'calc(100vh - 160px)',
+    overflowY: 'scroll',
+    margin: 'auto',
+  },
+  transferItem: {
+    cursor: 'pointer',
+    marginBottom: theme.spacing(1),
+    padding: theme.spacing(1),
+    borderRadius: theme.shape.borderRadius,
+    alignContent: 'center',
+  },
 }));
 
 function Transfer() {
   const navigate = useNavigate();
-
+  const admin = JSON.parse(localStorage.getItem("currentAdmin"));
+  const [current_admin] = useState(admin);
   const classes = useStyles();
   const [isFocused, setIsFocused] = useState(false);
+  const [transfers, setTransfers] = useState([]);
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -70,7 +88,49 @@ function Transfer() {
   const Logout = (event) => {
     event.preventDefault();
     navigate("/");
-    localStorage.removeItem("currentUser");
+    localStorage.removeItem("currentAdmin");
+  };
+
+  const getTransfersFromDatabase = async () => {
+    // Implement this function to fetch transfers from the database
+    // For simplicity, we'll assume it returns an array of transfers
+    const fetchedTransfers = await getTransfers();
+    setTransfers(fetchedTransfers);
+  };
+
+  const getTransfers = async () => {
+    try {
+      // Fetch transfers from the server, replace '/admin/transfers' with the actual endpoint
+      const response = await fetch('/admin/transfers');
+      if (!response.ok) {
+        throw new Error('Error fetching transfers from the server.');
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching transfers from the server:', error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    getTransfersFromDatabase();
+  }, []);
+
+  const renderTransferList = () => {
+    // Filter transfers with amount greater than 5000
+    const filteredTransfers = transfers.filter((transfer) => transfer.amount > 5000);
+
+    return filteredTransfers.map((transfer) => (
+      <Paper key={transfer.id} className={classes.transferItem}>
+        {/* Display transfer information here */}
+        {/* Example: */}
+        <Typography>{`Transfer ID: ${transfer.id}`}</Typography>
+        <Typography>{`Amount: ${transfer.amount}`}</Typography>
+        <Typography>{`Date: ${transfer.date}`}</Typography>
+        {/* Add other transfer information */}
+      </Paper>
+    ));
   };
 
   return (
@@ -78,7 +138,7 @@ function Transfer() {
       <AppBar position="static" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" className={classes.welcome}>
-            Welcome [Username]!
+          {current_admin.firstname} {current_admin.lastname}
           </Typography>
           <div className={classes.navLinkContainer}>
             <NavLink className={classes.navLink} to="/admin/CustomerInfo">
@@ -126,8 +186,12 @@ function Transfer() {
           </form>
         </Grid>
       </Grid>
+      {/* New container for transfer list */}
+      <Grid item container justifyContent="center" className={classes.transferContainer}>
+        {renderTransferList()}
+      </Grid>
     </Grid>
   );
 }
 
-export default Transfer;
+export default Transfer;

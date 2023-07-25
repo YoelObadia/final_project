@@ -44,7 +44,8 @@ const useStyles = makeStyles((theme) => ({
 
 function AddAdmin() {
   const navigate = useNavigate();
-
+  const admin = JSON.parse(localStorage.getItem("currentAdmin"));
+  const [current_admin] = useState(admin);
   const classes = useStyles();
   const [adminInfo, setAdminInfo] = useState({
     firstname: '',
@@ -194,7 +195,7 @@ function AddAdmin() {
   const Logout = (event) => {
     event.preventDefault();
     navigate("/");
-    localStorage.removeItem("currentUser");
+    localStorage.removeItem("currentAdmin");
   };
 
   return (
@@ -202,7 +203,7 @@ function AddAdmin() {
       <AppBar position="static" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" className={classes.welcome}>
-            Welcome [Username]!
+          {current_admin.firstname} {current_admin.lastname}
           </Typography>
           <div className={classes.navLinkContainer}>
             <NavLink className={classes.navLink} to="/admin/CustomerInfo">
