@@ -121,6 +121,12 @@ function Transactions() {
     getClientsFromDatabase();
   }, []);
 
+  useEffect(() => {
+    if (selectedClient) {
+      handleClientItemClick(selectedClient); // Mise à jour des transactions avec le filtre actuel
+    }
+  }, [filterDate, filterTransactionType]);
+
   function Logout(event) {
     event.preventDefault();
     localStorage.removeItem("currentAdmin");
@@ -162,8 +168,17 @@ function Transactions() {
 
     try {
       let endpoint = `/admin/transactions/${client.id}`;
+      const queryParams = [];
+
       if (filterTransactionType && filterTransactionType !== 'All') {
-        endpoint += `?filter=${filterTransactionType.toLowerCase()}`;
+        queryParams.push(`filter=${filterTransactionType.toLowerCase()}`);
+      }
+      if (filterDate) {
+        queryParams.push(`date=${filterDate}`);
+      }
+
+      if (queryParams.length > 0) {
+        endpoint += `?${queryParams.join('&')}`;
       }
 
       const response = await fetch(endpoint);
@@ -171,15 +186,20 @@ function Transactions() {
         throw new Error('Error fetching transactions from the server.');
       }
       const data = await response.json();
-      setTransactions(data); // Mettre à jour les transactions avec les nouvelles données filtrées
+      setTransactions(data);
     } catch (error) {
       console.error('Error fetching transactions from the server:', error);
-      setTransactions([]); // Remettre les transactions à une liste vide en cas d'erreur
+      setTransactions([]);
     }
   };
-  
-  
-
+    
+    
+    function Logout(event) {
+      event.preventDefault();
+      localStorage.removeItem("currentAdmin");
+      navigate("/");
+    }
+    
   const renderClientList = () => {
     return filteredClients.map((client) => (
       <Paper
