@@ -209,9 +209,6 @@ function AddAdmin() {
             <NavLink className={classes.navLink} to="/admin/CustomerInfo">
               Customer Info
             </NavLink>
-            <NavLink className={classes.navLink} to="/admin/transfer">
-              Transfer
-            </NavLink>
             <NavLink className={classes.navLink} to="/admin/Transactions">
               Transactions
             </NavLink>

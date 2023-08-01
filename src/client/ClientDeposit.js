@@ -17,6 +17,17 @@ const useStyles = makeStyles((theme) => ({
   welcome: {
     marginRight: theme.spacing(4),
   },
+  amount: {
+    marginRight: theme.spacing(4),
+    marginLeft: theme.spacing(5),
+    padding: theme.spacing(1),
+    borderRadius: theme.shape.borderRadius,
+    border: `2px solid maroon`, // Bordure bordeaux
+    boxShadow: `0 2px 4px rgba(0, 0, 0, 0.2)`, // Ombre autour du solde
+    backgroundColor: `rgba(255, 255, 255, 0.8)`, // Fond en blanc transparent (plus clair)
+    color: `maroon`, // Texte en bordeaux
+    textDecoration:'underline',
+  },
   navLinkContainer: {
     display: "flex",
     alignItems: "center",
@@ -27,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
   },
   logoutButton: {
-    marginLeft: theme.spacing(2),
+    marginLeft: theme.spacing(0),
     color: theme.palette.common.white,
   },
   formContainer: {
@@ -71,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function ClientDeposit() {
   const user = JSON.parse(localStorage.getItem("currentUser"));
-  const [current_user, ] = useState(user);
+  const [current_user, setCurrentUser] = useState(user);
   const navigate = useNavigate();
   const classes = useStyles();
 
@@ -123,8 +134,12 @@ export function ClientDeposit() {
       alert(data.message);
       setDepositAmount('');
 
+      // Mettre à jour automatiquement le solde dans la navbar
+      if (data.newBalance) {
+        setCurrentUser((prevUser) => ({ ...prevUser, balance: data.newBalance }));
+      }
+
       // Appel à la fonction pour enregistrer le dépôt dans la table "deposits"
-      
     } catch (error) {
       console.error('Erreur lors de la demande de dépôt :', error);
       alert('Une erreur est survenue lors du dépôt.');
@@ -149,16 +164,7 @@ export function ClientDeposit() {
       console.error('Erreur lors de la demande de depot :', error);
       alert('Une erreur est survenue lors du depot.');
     }
-  
-
-  
-
- 
-
-
-
 };
-
 
   return (
     <div>
@@ -166,7 +172,7 @@ export function ClientDeposit() {
         <Toolbar className={classes.toolbar}>
           {current_user && (
             <Typography variant="h6" className={classes.welcome}>
-              Welcome {current_user.firstname} {current_user.lastname}!
+              {current_user.firstname} {current_user.lastname}!
             </Typography>
           )}
           <div className={classes.navLinkContainer}>
@@ -182,10 +188,13 @@ export function ClientDeposit() {
             <NavLink className={classes.navLink} to="/client/transactions">
               Transactions
             </NavLink>
+          </div>
+          <Typography variant="h6" className={classes.amount}>
+            Balance: {current_user.balance} $
+          </Typography>
             <Button className={classes.logoutButton} color="inherit" onClick={Logout}>
               Logout
             </Button>
-          </div>
         </Toolbar>
       </AppBar>
       <Grid container spacing={2} justifyContent="center" alignItems="center" style={{ height: '100vh' }}>

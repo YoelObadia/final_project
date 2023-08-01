@@ -12,7 +12,6 @@ import ClientWithdrawal from './client/ClientWithdrawal';
 import ClientTransfer from './client/ClientTransfer';
 import ClientTransactions from './client/ClientTransactions';
 import CustomerInfo from './admin/CustomerInfo';
-import Transfer from './admin/Transfer';
 import Transactions from './admin/Transactions';
 import AddAdmin from './admin/AddAdmin';
 
@@ -32,7 +31,6 @@ function App() {
           <Route path="/client/withdrawal" element={<ClientWithdrawal />} />
           <Route path="/client/transfer" element={<ClientTransfer />} />
           <Route path="/client/transactions" element={<ClientTransactions />} />
-          <Route path="/admin/transfer" element={<Transfer />} />
           <Route path="/admin/transactions" element={<Transactions />} />
           <Route path="/admin/addAdmin" element={<AddAdmin />} />
         </Routes>

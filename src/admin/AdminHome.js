@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useState, createContext } from "react";
+import { useState, createContext, useEffect } from "react";
 import { AppBar, Toolbar, Typography, Button, makeStyles, Grid } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -36,15 +36,52 @@ export const EssaiContext = createContext();
 
 export function AdminHome() {
   const admin = JSON.parse(localStorage.getItem("currentAdmin"));
-  const [current_admin] = useState(admin);
+  const [current_admin, setCurrentAdmin] = useState(admin);
   const navigate = useNavigate();
   const classes = useStyles();
+
+  useEffect(() => {
+    // Add event listener for popstate to handle logout on back navigation
+    const handlePopstate = () => {
+      localStorage.removeItem("currentAdmin");
+    };
+    window.addEventListener("popstate", handlePopstate);
+
+    return () => {
+      // Clean up the event listener when the component unmounts
+      window.removeEventListener("popstate", handlePopstate);
+    };
+  }, []);
 
   function Logout(event) {
     event.preventDefault();
     localStorage.removeItem("currentAdmin");
-    navigate("/");
+    navigate("/", { replace: true }); // Use replace option to replace the history entry
   }
+
+  useEffect(() => {
+    if (!current_admin) {
+      // If the admin is not logged in, redirect to the login page
+      navigate("/", { replace: true }); // Use replace option to replace the history entry
+    } else if (admin && admin.clientId) {
+      fetch(`http://localhost:3000/admin/home?adminId=${admin.clientId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setCurrentAdmin((prevUser) => ({
+            ...prevUser,
+            firstname: data.firstname,
+            lastname: data.lastname,
+          }));
+        })
+        .catch((error) => {
+          console.error(
+            "Erreur lors de la récupération des informations du client :",
+            error
+          );
+          // Afficher une erreur à l'utilisateur
+        });
+    }
+  }, [current_admin]); // Add "current_admin" to the dependency array
 
   return (
     <div>
@@ -60,9 +97,6 @@ export function AdminHome() {
           <div className={classes.navLinkContainer}>
             <NavLink className={classes.navLink} to="/admin/customerInfo">
               CustomerInfo
-            </NavLink>
-            <NavLink className={classes.navLink} to="/admin/transfer">
-              Transfer
             </NavLink>
             <NavLink className={classes.navLink} to="/admin/transactions">
               Transactions

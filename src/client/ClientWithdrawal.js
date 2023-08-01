@@ -17,6 +17,17 @@ const useStyles = makeStyles((theme) => ({
   welcome: {
     marginRight: theme.spacing(4),
   },
+  amount: {
+    marginRight: theme.spacing(4),
+    marginLeft: theme.spacing(5),
+    padding: theme.spacing(1),
+    borderRadius: theme.shape.borderRadius,
+    border: `2px solid maroon`, // Bordure bordeaux
+    boxShadow: `0 2px 4px rgba(0, 0, 0, 0.2)`, // Ombre autour du solde
+    backgroundColor: `rgba(255, 255, 255, 0.8)`, // Fond en blanc transparent (plus clair)
+    color: `maroon`, // Texte en bordeaux
+    textDecoration:'underline',
+  },
   navLinkContainer: {
     display: "flex",
     alignItems: "center",
@@ -27,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
   },
   logoutButton: {
-    marginLeft: theme.spacing(2),
+    marginLeft: theme.spacing(0),
     color: theme.palette.common.white,
   },
   formContainer: {
@@ -71,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function ClientWithdrawal() {
   const user = JSON.parse(localStorage.getItem("currentUser"));
-  const [current_user, ] = useState(user);
+  const [current_user, setCurrentUser] = useState(user);
   const navigate = useNavigate();
   const classes = useStyles();
   
@@ -102,7 +113,7 @@ export function ClientWithdrawal() {
   const handleWithdrawal = async (event) => {
     event.preventDefault();
 
-    // Effectuer la logique pour envoyer la requête POST au serveur pour le retrait d'argent
+    // Effectuer la logique pour envoyer la requête PUT au serveur pour le retrait d'argent
     const userId = current_user.id;
     const amount = parseFloat(withdrawalAmount);
 
@@ -125,10 +136,18 @@ export function ClientWithdrawal() {
       // Afficher le message de succès et réinitialiser le champ du montant
       alert(data.message);
       setWithdrawalAmount('');
+
+      // Mettre à jour le solde dans le state du composant
+      setCurrentUser({ ...current_user, balance: data.newBalance });
+
+      // Mettre à jour le solde dans le localStorage
+      const updatedUser = { ...current_user, balance: data.newBalance };
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
     } catch (error) {
       console.error('Erreur lors de la demande de retrait :', error);
       alert('Une erreur est survenue lors du retrait.');
     }
+  
 
 
     const requestOptionsinfo = {
@@ -159,7 +178,7 @@ export function ClientWithdrawal() {
         <Toolbar className={classes.toolbar}>
           {current_user && (
             <Typography variant="h6" className={classes.welcome}>
-              Welcome {current_user.firstname} {current_user.lastname}!
+            {current_user.firstname} {current_user.lastname}!
             </Typography>
           )}
           <div className={classes.navLinkContainer}>
@@ -175,10 +194,13 @@ export function ClientWithdrawal() {
             <NavLink className={classes.navLink} to="/client/transactions">
               Transactions
             </NavLink>
+          </div>
+          <Typography variant="h6" className={classes.amount}>
+            Balance: {current_user.balance} $
+          </Typography>
             <Button className={classes.logoutButton} color="inherit" onClick={Logout}>
               Logout
             </Button>
-          </div>
         </Toolbar>
       </AppBar>
       <Grid container spacing={2} justifyContent="center" alignItems="center" style={{ height: '100vh' }}>

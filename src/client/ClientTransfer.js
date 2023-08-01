@@ -17,6 +17,17 @@ const useStyles = makeStyles((theme) => ({
   welcome: {
     marginRight: theme.spacing(4),
   },
+  amount: {
+    marginRight: theme.spacing(4),
+    marginLeft: theme.spacing(5),
+    padding: theme.spacing(1),
+    borderRadius: theme.shape.borderRadius,
+    border: `2px solid maroon`, // Bordure bordeaux
+    boxShadow: `0 2px 4px rgba(0, 0, 0, 0.2)`, // Ombre autour du solde
+    backgroundColor: `rgba(255, 255, 255, 0.8)`, // Fond en blanc transparent (plus clair)
+    color: `maroon`, // Texte en bordeaux
+    textDecoration:'underline',
+  },
   navLinkContainer: {
     display: "flex",
     alignItems: "center",
@@ -27,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
   },
   logoutButton: {
-    marginLeft: theme.spacing(2),
+    marginLeft: theme.spacing(0),
     color: theme.palette.common.white,
   },
   formContainer: {
@@ -72,14 +83,13 @@ const useStyles = makeStyles((theme) => ({
 
 export function ClientTransfer() {
   const user = JSON.parse(localStorage.getItem("currentUser"));
-  const [current_user] = useState(user);
+  const [current_user, setCurrentUser] = useState(user);
   const navigate = useNavigate();
   const classes = useStyles();
-  
+
   const [transferAmount, setTransferAmount] = useState('');
   const [paymentReason, setPaymentReason] = useState('');
   const [recipientAccountNumber, setRecipientAccountNumber] = useState('');
-  const [senderAccountNumber, setsenderAccountNumber] = useState('');
   const [transferMessage, setTransferMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -100,7 +110,7 @@ export function ClientTransfer() {
 
       setTransferMessage(data.message);
     } catch (error) {
-      console.error('Erreur lors de la récupération de la page de dépôt :', error);
+      console.error('Erreur lors de la récupération de la page de transfert :', error);
     }
   };
 
@@ -115,7 +125,7 @@ export function ClientTransfer() {
 
     // Appel de l'API pour effectuer le transfert
     try {
-      const response = await fetch('/client/transfer', {
+      const response = await fetch('http://localhost:3000/client/transfer', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -125,7 +135,6 @@ export function ClientTransfer() {
           transferAmount,
           paymentReason,
           recipientAccountNumber,
-          senderAccountNumber,
         }),
       });
 
@@ -135,8 +144,13 @@ export function ClientTransfer() {
         setTransferAmount('');
         setPaymentReason('');
         setRecipientAccountNumber('');
-        setsenderAccountNumber('');
         setErrorMessage('');
+
+        // Mettre à jour automatiquement le solde dans la navbar
+        const data = await response.json();
+        if (data.newBalance) {
+          setCurrentUser((prevUser) => ({ ...prevUser, balance: data.newBalance }));
+        }
       } else {
         const data = await response.json();
         setErrorMessage(data.message);
@@ -145,12 +159,6 @@ export function ClientTransfer() {
       console.error('Erreur lors du transfert:', error);
       setErrorMessage('Une erreur est survenue lors du transfert. Veuillez réessayer plus tard.');
     }
-
-
-    
-
-
- 
 
     // Appel de l'API pour insérer le transfert partagé
     const requestOptionsinfoshared = {
@@ -180,10 +188,6 @@ export function ClientTransfer() {
       console.error('Erreur lors de la demande du transfert :', error);
       alert('Une erreur est survenue lors du transfert.');
     }
-
-    
-  
-  
   };
 
   return (
@@ -192,7 +196,7 @@ export function ClientTransfer() {
         <Toolbar className={classes.toolbar}>
           {current_user && (
             <Typography variant="h6" className={classes.welcome}>
-              Welcome {current_user.firstname} {current_user.lastname}!
+              {current_user.firstname} {current_user.lastname}!
             </Typography>
           )}
           <div className={classes.navLinkContainer}>
@@ -208,10 +212,13 @@ export function ClientTransfer() {
             <NavLink className={classes.navLink} to="/client/transactions">
               Transactions
             </NavLink>
+          </div>
+          <Typography variant="h6" className={classes.amount}>
+            Balance: {current_user.balance} $
+          </Typography>
             <Button className={classes.logoutButton} color="inherit" onClick={Logout}>
               Logout
             </Button>
-          </div>
         </Toolbar>
       </AppBar>
       <Grid container spacing={2} justifyContent="center" alignItems="center" style={{ height: '100vh' }}>

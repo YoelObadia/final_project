@@ -17,6 +17,17 @@ const useStyles = makeStyles((theme) => ({
   welcome: {
     marginRight: theme.spacing(4),
   },
+  amount: {
+    marginRight: theme.spacing(4),
+    marginLeft: theme.spacing(5),
+    padding: theme.spacing(1),
+    borderRadius: theme.shape.borderRadius,
+    border: `2px solid maroon`, // Bordure bordeaux
+    boxShadow: `0 2px 4px rgba(0, 0, 0, 0.2)`, // Ombre autour du solde
+    backgroundColor: `rgba(255, 255, 255, 0.8)`, // Fond en blanc transparent (plus clair)
+    color: `maroon`, // Texte en bordeaux
+    textDecoration:'underline',
+  },
   navLinkContainer: {
     display: "flex",
     alignItems: "center",
@@ -27,73 +38,72 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
   },
   logoutButton: {
-    marginLeft: theme.spacing(2),
+    marginLeft: theme.spacing(0),
     color: theme.palette.common.white,
   },
-  square: {
-    backgroundColor: "maroon",
-    color: theme.palette.common.white,
-    height: 300,
-    width: 740,
-    marginTop:'10px',
-    marginLeft:'-470px',
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  square1: {
-    backgroundColor: "maroon",
-    color: theme.palette.common.white,
-    height: 300,
-    width: 740,
-    marginTop:'10px',
-    marginLeft:'10px',
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  square2: {
-    backgroundColor: "maroon",
-    color: theme.palette.common.white,
-    height: 300,
-    width: 740,
-    marginTop:'50px',
-    marginLeft:'-470px',
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: theme.spacing(2),
-  },
-  square3: {
-    backgroundColor: "maroon",
-    color: theme.palette.common.white,
-    height: 300,
-    width: 740,
-    marginBottom:'50px',
-    marginLeft:'10px',
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
+  
+  tableContainer: { 
+    height: 'calc(100vh - 180px)', // Set height to calculate the remaining height after the app bar and other elements
+    width: '1350px',
+    marginLeft: '-400px',
+    textAlignLast: 'center',
   },
  
-  largeSquare: {
-    flexBasis: '500px',
-    marginRight: theme.spacing(2),
-  },
-
   filterContainer: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(3),
+    marginTop: theme.spacing(2),
   },
-  filterLabel: {
-    marginBottom: theme.spacing(1),
+
+
+  rectangleContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '1350px',
+    marginLeft: '-400px',
   },
+
+
+  rectangle1: {
+    width: '170px', // Adjust the width to match the width of each column
+    height: '40px', // Adjust the height as needed
+    backgroundColor: 'rgba(128, 0, 0, 0.2)', // Change the color to 'bordeaux' (transparent)
+    textAlign: 'center',
+    marginLeft: '0px',
+  
+  },
+  rectangle2: {
+    width: '150px', // Adjust the width to match the width of each column
+    height: '40px', // Adjust the height as needed
+    backgroundColor: 'rgba(128, 0, 0, 0.2)', // Change the color to 'bordeaux' (transparent)
+    textAlign: 'center',
+    marginLeft: '-110px',
+  },
+
+  rectangle3: {
+    width: '250px', // Adjust the width to match the width of each column
+    height: '40px', // Adjust the height as needed
+    backgroundColor: 'rgba(128, 0, 0, 0.2)', // Change the color to 'bordeaux' (transparent)
+    textAlign: 'center',
+    marginLeft: '-110px',
+  },
+  rectangle4: {
+    width: '530px', // Adjust the width to match the width of each column
+    height: '40px', // Adjust the height as needed
+    backgroundColor: 'rgba(128, 0, 0, 0.2)', // Change the color to 'bordeaux' (transparent)
+    textAlign: 'center',
+    marginLeft: '-110px',
+  },
+  rectangle5: {
+    width: '250px', // Adjust the width to match the width of each column
+    height: '40px', // Adjust the height as needed
+    backgroundColor: 'rgba(128, 0, 0, 0.2)', // Change the color to 'bordeaux' (transparent)
+    textAlign: 'center',
+    marginLeft: '-110px',
+  },
+ 
 }));
 
 
@@ -148,7 +158,7 @@ export function Transactions({ userId }) {
         <Toolbar className={classes.toolbar}>
           {current_user && (
             <Typography variant="h6" className={classes.welcome}>
-              Welcome {current_user.firstname} {current_user.lastname}!
+              {current_user.firstname} {current_user.lastname}!
             </Typography>
           )}
           <div className={classes.navLinkContainer}>
@@ -164,15 +174,18 @@ export function Transactions({ userId }) {
             <NavLink className={classes.navLink} to="/client/transactions">
               Transactions
             </NavLink>
-            <Button className={classes.logoutButton} color="inherit" onClick={Logout}>
+            
+          </div>
+          <Typography variant="h6" className={classes.amount}>
+            Balance: {current_user.balance} $
+          </Typography>
+          <Button className={classes.logoutButton} color="inherit" onClick={Logout}>
               Logout
             </Button>
-          </div>
         </Toolbar>
       </AppBar>
       <div className={classes.filterContainer}>
-        <InputLabel className={classes.filterLabel}>Filter</InputLabel>
-        <FormControl>
+         <FormControl>
           <Select value={filter} onChange={handleFilterChange}>
             <MenuItem value="all">All Transactions</MenuItem>
             <MenuItem value="deposit">Deposits</MenuItem>
@@ -182,18 +195,17 @@ export function Transactions({ userId }) {
           </Select>
         </FormControl>
       </div>
-      <TableContainer component={Paper}>
+      <div className={classes.rectangleContainer}>
+        <div className={classes.rectangle1}>TYPE</div>
+        <div className={classes.rectangle2}>AMOUNT</div>
+        <div className={classes.rectangle3}>DATE</div>
+        <div className={classes.rectangle4}>REASON</div>
+        <div className={classes.rectangle5}>ACCOUNT NUMBER</div>
+      </div>
+      <TableContainer component={Paper}className={classes.tableContainer}>
         <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Transaction Type</TableCell>
-              <TableCell>Amount</TableCell>
-              <TableCell>Timestamp</TableCell>
-              <TableCell>Reason</TableCell>
-              <TableCell>Account Number</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+          
+          <TableBody component={Paper}className={classes.tablebody}>
             {transactions.map((transaction) => (
               <TableRow key={transaction.id}>
                 <TableCell>{transaction.transactionType}</TableCell>

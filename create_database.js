@@ -1,341 +1,223 @@
+const admin = require('firebase-admin');
 const faker = require('faker');
-const mysql = require('mysql2');
+const serviceAccount = require('C:/Users/benchimol yechoua/Desktop/fullstack7-bank-firebase-adminsdk-fr7a4-c463e75376.json'); // Replace with your Firebase Admin SDK service account key
 
-const con = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Yoyo5555badia()',
-  port: 3306,
-  database: 'fs7'
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://console.firebase.google.com/u/0/project/fullstack7-bank/database/fullstack7-bank-default-rtdb/data'
 });
 
-const formatDateForMySQL = (date) => {
-  const formattedDate = new Date(date).toISOString().slice(0, 19).replace('T', ' ');
-  return formattedDate;
+const db = admin.firestore();
+
+const formatDateForFirebase = (date) => {
+  return admin.firestore.Timestamp.fromDate(new Date(date));
 };
 
-const createClientTable = () => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS client (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      firstname VARCHAR(255) NOT NULL,
-      lastname VARCHAR(255) NOT NULL,
-      phone VARCHAR(20) NOT NULL,
-      email VARCHAR(255) NOT NULL,
-      address VARCHAR(255) NOT NULL,
-      username VARCHAR(255) NOT NULL
-    )
-  `;
+const createClientTable = async () => {
+  const clientTableRef = db.collection('client');
 
-  con.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log('Table "client" created successfully');
-    createClientPasswordTable();
-  });
-};
-
-const createClientPasswordTable = () => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS client_password (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      userId INT NOT NULL,
-      username VARCHAR(255) NOT NULL,
-      password VARCHAR(255) NOT NULL,
-      FOREIGN KEY (userId) REFERENCES client(id)
-    )
-  `;
-
-  con.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log('Table "client_password" created successfully');
-    createClientAccountTable();
-  });
-};
-
-const createClientAccountTable = () => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS client_account (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      userId INT NOT NULL,
-      username VARCHAR(255) NOT NULL,
-      accountNumber VARCHAR(6) UNIQUE NOT NULL,
-      balance DECIMAL(10, 2) NOT NULL,
-      FOREIGN KEY (userId) REFERENCES client(id)
-    )
-  `;
-
-  con.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log('Table "client_account" created successfully');
-    createAdminTable();
-  });
-};
-
-const createAdminTable = () => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS admin (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      firstname VARCHAR(255) NOT NULL,
-      lastname VARCHAR(255) NOT NULL,
-      phone VARCHAR(20) NOT NULL,
-      email VARCHAR(255) NOT NULL,
-      address VARCHAR(255) NOT NULL,
-      username VARCHAR(255) NOT NULL
-    )
-  `;
-
-  con.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log('Table "admin" created successfully');
-    createAdminPasswordTable();
-  });
-};
-
-const createAdminPasswordTable = () => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS admin_password (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      userId INT NOT NULL,
-      username VARCHAR(255) NOT NULL,
-      password VARCHAR(255) NOT NULL,
-      FOREIGN KEY (userId) REFERENCES admin(id)
-    )
-  `;
-
-  con.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log('Table "admin_password" created successfully');
-    createDepositsTable(); // Nouvelle fonction pour créer la table "deposits"
-  });
-};
-
-const createDepositsTable = () => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS deposits (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      userId INT NOT NULL,
-      amount DECIMAL(10, 2) NOT NULL,
-      timestamp DATETIME NOT NULL,
-      FOREIGN KEY (userId) REFERENCES client(id)
-    )
-  `;
-
-  con.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log('Table "deposits" created successfully');
-    createWithdrawsTable(); // Nouvelle fonction pour créer la table "withdraws"
-  });
-};
-
-const createWithdrawsTable = () => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS withdraws (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      userId INT NOT NULL,
-      amount DECIMAL(10, 2) NOT NULL,
-      timestamp DATETIME NOT NULL,
-      FOREIGN KEY (userId) REFERENCES client(id)
-    )
-  `;
-
-  con.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log('Table "withdraws" created successfully');
-    createReceivedTransfersTable(); // Nouvelle fonction pour créer la table "received_transfers"
-  });
-};
-
-const createReceivedTransfersTable = () => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS received_transfers (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      userId INT NOT NULL,
-      amount DECIMAL(10, 2) NOT NULL,
-      reason VARCHAR(255) NOT NULL,
-      senderAccountNumber VARCHAR(6) NOT NULL,
-      timestamp DATETIME NOT NULL,
-      FOREIGN KEY (userId) REFERENCES client(id)
-    )
-  `;
-
-  con.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log('Table "received_transfers" created successfully');
-    createSharedTransfersTable(); // Nouvelle fonction pour créer la table "shared_transfers"
-  });
-};
-
-const createSharedTransfersTable = () => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS shared_transfers (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      userId INT NOT NULL,
-      amount DECIMAL(10, 2) NOT NULL,
-      reason VARCHAR(255) NOT NULL,
-      receiverAccountNumber VARCHAR(6) NOT NULL,
-      timestamp DATETIME NOT NULL,
-      FOREIGN KEY (userId) REFERENCES client(id)
-    )
-  `;
-
-  con.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log('Table "shared_transfers" created successfully');
-    insertData(); // Appeler la fonction pour insérer les données fictives après la création des tables
-  });
-};
-
-
-const insertData = () => {
-  // Insert 10 default clients
+  // Create client documents (10 default clients)
   for (let i = 0; i < 10; i++) {
     const firstName = faker.name.firstName();
-    const lastName = faker.name.lastName().replace("'", "''");
+    const lastName = faker.name.lastName();
     const phone = '05' + faker.datatype.number({ min: 1000000000, max: 9999999999 });
     const email = faker.internet.email(firstName, lastName);
     const address = faker.address.streetAddress();
     const randomNumber = faker.datatype.number();
     const username = `${firstName}${randomNumber}`;
 
-    const clientSql = `
-      INSERT INTO client (firstname, lastname, phone, email, address, username)
-      VALUES ('${firstName}', '${lastName}', '${phone}', '${email}', '${address}', '${username}')
-    `;
+    const clientData = {
+      firstname: firstName,
+      lastname: lastName,
+      phone: phone,
+      email: email,
+      address: address,
+      username: username
+    };
 
-    const password = faker.datatype.number({ min: 100000, max: 999999 }).toString(); // Mot de passe à 6 chiffres
+    const clientRef = await clientTableRef.add(clientData);
 
-    const passwordSql = `
-      INSERT INTO client_password (userId, username, password)
-      SELECT id, '${username}', '${password}' FROM client WHERE username = '${username}'
-    `;
+    // Create client password document
+    const password = faker.datatype.number({ min: 100000, max: 999999 }).toString(); // 6-digit password
+    const passwordData = {
+      userId: clientRef.id,
+      username: username,
+      password: password
+    };
+    await db.collection('client_password').add(passwordData);
 
+    // Create client account document
     const accountNumber = faker.datatype.number({ min: 100000, max: 999999 }).toString();
-
     const balance = faker.datatype.float({ min: 500, max: 10000 }).toFixed(2);
-
-    const accountSql = `
-      INSERT INTO client_account (userId, username, accountNumber, balance)
-      SELECT id, '${username}', '${accountNumber}', ${balance} FROM client WHERE username = '${username}'
-    `;
-
-    con.query(clientSql, (err, result) => {
-      if (err) throw err;
-    });
-
-    con.query(passwordSql, (err, result) => {
-      if (err) throw err;
-    });
-
-    con.query(accountSql, (err, result) => {
-      if (err) throw err;
-    });
+    const accountData = {
+      userId: clientRef.id,
+      username: username,
+      accountNumber: accountNumber,
+      balance: parseFloat(balance)
+    };
+    await db.collection('client_account').add(accountData);
   }
 
-  // Insert 3 default administrators
+  console.log('Data inserted successfully');
+};
+
+const createAdminTable = async () => {
+  const adminTableRef = db.collection('admin');
+
+  // Create admin documents (3 default administrators)
   for (let i = 0; i < 3; i++) {
     const firstName = faker.name.firstName();
-    const lastName = faker.name.lastName().replace("'", "''");
+    const lastName = faker.name.lastName();
     const phone = '05' + faker.datatype.number({ min: 1000000000, max: 9999999999 });
     const email = faker.internet.email(firstName, lastName);
     const address = faker.address.streetAddress();
     const randomNumber = faker.datatype.number();
     const username = `${firstName}${randomNumber}`;
 
-    const adminSql = `
-      INSERT INTO admin (firstname, lastname, phone, email, address, username)
-      VALUES ('${firstName}', '${lastName}', '${phone}', '${email}', '${address}', '${username}')
-    `;
+    const adminData = {
+      firstname: firstName,
+      lastname: lastName,
+      phone: phone,
+      email: email,
+      address: address,
+      username: username
+    };
 
-    const password = faker.datatype.number({ min: 100000, max: 999999 }).toString(); // Mot de passe à 6 chiffres
+    const adminRef = await adminTableRef.add(adminData);
 
-    const passwordSql = `
-      INSERT INTO admin_password (userId, username, password)
-      SELECT id, '${username}', '${password}' FROM admin WHERE username = '${username}'
-    `;
-
-    con.query(adminSql, (err, result) => {
-      if (err) throw err;
-    });
-
-    con.query(passwordSql, (err, result) => {
-      if (err) throw err;
-    });
+    // Create admin password document
+    const password = faker.datatype.number({ min: 100000, max: 999999 }).toString(); // 6-digit password
+    const passwordData = {
+      userId: adminRef.id,
+      username: username,
+      password: password
+    };
+    await db.collection('admin_password').add(passwordData);
   }
+
+  console.log('Data inserted successfully');
+};
+
+const createDepositsTable = async () => {
+  const depositsTableRef = db.collection('deposits');
 
   // Insert deposits for all clients
-  for (let i = 1; i <= 10; i++) {
+  const clients = await db.collection('client').get();
+
+  clients.forEach(async (client) => {
     for (let j = 0; j < 5; j++) {
       const depositAmount = faker.datatype.float({ min: 100, max: 500 }).toFixed(2);
-      const timestamp = formatDateForMySQL(new Date());
+      const timestamp = formatDateForFirebase(new Date());
 
-      const depositSql = `
-        INSERT INTO deposits (userId, amount, timestamp)
-        VALUES (${i}, ${depositAmount}, '${timestamp}')
-      `;
+      const depositData = {
+        userId: client.id,
+        amount: parseFloat(depositAmount),
+        timestamp: timestamp
+      };
 
-      con.query(depositSql, (err, result) => {
-        if (err) throw err;
-      });
+      await depositsTableRef.add(depositData);
     }
-  }
+  });
 
+  console.log('Data inserted successfully');
+};
 
-  for (let i = 1; i <= 10; i++) {
+const createWithdrawalsCollection = async () => {
+  const withdrawalsCollectionRef = db.collection('withdrawals');
+
+  // Insert withdrawals for all clients
+  const clients = await db.collection('client').get();
+
+  clients.forEach(async (client) => {
     for (let k = 0; k < 5; k++) {
-      const withdrawAmount = faker.datatype.float({ min: 50, max: 200 }).toFixed(2);
-      const timestamp = formatDateForMySQL(new Date());
+      const withdrawalAmount = faker.datatype.float({ min: 50, max: 200 }).toFixed(2);
+      const timestamp = formatDateForFirebase(new Date());
 
-      const withdrawSql = `
-        INSERT INTO withdraws (userId, amount, timestamp)
-        VALUES (${i}, ${withdrawAmount}, '${timestamp}')
-      `;
+      const withdrawalData = {
+        userId: client.id,
+        amount: parseFloat(withdrawalAmount),
+        timestamp: timestamp
+      };
 
-      con.query(withdrawSql, (err, result) => {
-        if (err) throw err;
-      });
+      await withdrawalsCollectionRef.add(withdrawalData);
     }
-  }
+  });
+
+  console.log('Data inserted successfully');
+};
+
+const createReceivedTransfersCollection = async () => {
+  const receivedTransfersCollectionRef = db.collection('received_transfers');
 
   // Insert received transfers for all clients
-  for (let i = 1; i <= 10; i++) {
+  const clients = await db.collection('client').get();
+
+  clients.forEach(async (client) => {
     for (let l = 0; l < 5; l++) {
       const transferAmount = faker.datatype.float({ min: 100, max: 500 }).toFixed(2);
       const transferReason = faker.lorem.sentence();
       const senderAccountNumber = faker.datatype.number({ min: 100000, max: 999999 }).toString();
-      const timestamp = formatDateForMySQL(new Date());
+      const timestamp = formatDateForFirebase(new Date());
 
-      const receivedTransferSql = `
-        INSERT INTO received_transfers (userId, amount, reason, senderAccountNumber, timestamp)
-        VALUES (${i}, ${transferAmount}, '${transferReason}', '${senderAccountNumber}', '${timestamp}')
-      `;
+      const receivedTransferData = {
+        userId: client.id,
+        amount: parseFloat(transferAmount),
+        reason: transferReason,
+        senderAccountNumber: senderAccountNumber,
+        timestamp: timestamp
+      };
 
-      con.query(receivedTransferSql, (err, result) => {
-        if (err) throw err;
-      });
+      await receivedTransfersCollectionRef.add(receivedTransferData);
     }
-  }
+  });
+
+  console.log('Data inserted successfully');
+};
+
+const createSharedTransfersCollection = async () => {
+  const sharedTransfersCollectionRef = db.collection('shared_transfers');
 
   // Insert shared transfers for all clients
-  for (let i = 1; i <= 10; i++) {
+  const clients = await db.collection('client').get();
+
+  clients.forEach(async (client) => {
     for (let m = 0; m < 5; m++) {
       const transferAmount = faker.datatype.float({ min: 100, max: 500 }).toFixed(2);
       const transferReason = faker.lorem.sentence();
       const receiverAccountNumber = faker.datatype.number({ min: 100000, max: 999999 }).toString();
-      const timestamp = formatDateForMySQL(new Date());
+      const timestamp = formatDateForFirebase(new Date());
 
-      const sharedTransferSql = `
-        INSERT INTO shared_transfers (userId, amount, reason, receiverAccountNumber, timestamp)
-        VALUES (${i}, ${transferAmount}, '${transferReason}', '${receiverAccountNumber}', '${timestamp}')
-      `;
+      const sharedTransferData = {
+        userId: client.id,
+        amount: parseFloat(transferAmount),
+        reason: transferReason,
+        receiverAccountNumber: receiverAccountNumber,
+        timestamp: timestamp
+      };
 
-      con.query(sharedTransferSql, (err, result) => {
-        if (err) throw err;
-      });
+      await sharedTransfersCollectionRef.add(sharedTransferData);
     }
-  }
+  });
 
   console.log('Data inserted successfully');
-  con.end();
 };
 
-createClientTable();
+// Add other table creation and data insertion functions following the same approach
+
+const initializeDatabase = async () => {
+  try {
+    await createClientTable();
+    await createAdminTable();
+    await createDepositsTable();
+    await createWithdrawalsCollection();
+    await createReceivedTransfersCollection();
+    await createSharedTransfersCollection();
+    // Call other functions to create additional tables and insert data
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    admin.app().delete(); // Close the Firebase Admin SDK connection after all operations are done
+  }
+};
+
+initializeDatabase();

@@ -275,9 +275,6 @@ function CustomerInfo() {
             <NavLink className={classes.navLink} to="/admin/customerInfo">
               CustomerInfo
             </NavLink>
-            <NavLink className={classes.navLink} to="/admin/transfer">
-              Transfer
-            </NavLink>
             <NavLink className={classes.navLink} to="/admin/transactions">
               Transactions
             </NavLink>

@@ -1,13 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid, TextField, Button } from '@material-ui/core';
+import { Grid, TextField, Button, Typography } from '@material-ui/core';
 
 function ClientLogin() {
   const navigate = useNavigate();
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [error, setError] = React.useState(null);
 
   const handleLogin = async () => {
+    setError(null); // Réinitialiser l'erreur à chaque tentative de connexion
+
     try {
       const response = await fetch('http://localhost:3000/client/login', {
         method: 'POST',
@@ -25,12 +28,11 @@ function ClientLogin() {
         navigate('/client/home');
       } else {
         const errorData = await response.json();
-        console.error('Erreur de connexion du client :', errorData.message);
-        // Afficher une erreur à l'utilisateur
+        setError(errorData.message); // Définir le message d'erreur reçu depuis le serveur
       }
     } catch (error) {
       console.error('Erreur lors de la connexion du client :', error);
-      // Afficher une erreur à l'utilisateur
+      setError('Une erreur s\'est produite lors de la connexion.'); // Message d'erreur générique en cas d'erreur côté client
     }
   };
 
@@ -41,6 +43,13 @@ function ClientLogin() {
 
   return (
     <Grid container spacing={2} justifyContent="center" alignItems="center" style={{ height: '100vh' }}>
+      {error && (
+        <Grid item xs={12}>
+          <Typography variant="body1" color="error" align="center">
+            {error}
+          </Typography>
+        </Grid>
+      )}
       <Grid item xs={12}>
         <TextField
           label="Username"

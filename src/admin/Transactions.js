@@ -69,10 +69,10 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    width: '200px', // Initial width of the search form
+    width: '400px', // Initial width of the search form
   },
   searchFormActive: {
-    width: '300px', // Width of the search form after clicking on it
+    width: '500px', // Width of the search form after clicking on it
   },
   searchInput: {
     marginRight: theme.spacing(2),
@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
     height: 'calc(100vh - 160px)',
     overflowY: 'scroll',
     marginRight: theme.spacing(5),
-    marginLeft: '-400px',
+    marginLeft: '-450px',
   },
   clientItem: {
     cursor: 'pointer',
@@ -99,8 +99,51 @@ const useStyles = makeStyles((theme) => ({
   },
   clientDetailsContainer: {
     overflowY: 'scroll',
-    height: 'calc(100vh - 160px)',
-    width: '1000px',
+    height: 'calc(100vh - 200px)',
+    width: '1080px',
+    textAlignLast: 'center',
+  },
+
+  rectangle1: {
+    width: '150px', // Adjust the width to match the width of each column
+    height: '40px', // Adjust the height as needed
+    backgroundColor: 'rgba(128, 0, 0, 0.2)', // Change the color to 'bordeaux' (transparent)
+    textAlign: 'center',
+    marginLeft: '0px',
+  
+  },
+  rectangle2: {
+    width: '100px', // Adjust the width to match the width of each column
+    height: '40px', // Adjust the height as needed
+    backgroundColor: 'rgba(128, 0, 0, 0.2)', // Change the color to 'bordeaux' (transparent)
+    textAlign: 'center',
+    marginLeft: '150px',
+    marginTop: '-40px',
+  },
+
+  rectangle3: {
+    width: '200px', // Adjust the width to match the width of each column
+    height: '40px', // Adjust the height as needed
+    backgroundColor: 'rgba(128, 0, 0, 0.2)', // Change the color to 'bordeaux' (transparent)
+    textAlign: 'center',
+    marginLeft: '250px',
+    marginTop: '-40px',
+  },
+  rectangle4: {
+    width: '464px', // Adjust the width to match the width of each column
+    height: '40px', // Adjust the height as needed
+    backgroundColor: 'rgba(128, 0, 0, 0.2)', // Change the color to 'bordeaux' (transparent)
+    textAlign: 'center',
+    marginLeft: '450px',
+    marginTop: '-40px',
+  },
+  rectangle5: {
+    width: '150px', // Adjust the width to match the width of each column
+    height: '40px', // Adjust the height as needed
+    backgroundColor: 'rgba(128, 0, 0, 0.2)', // Change the color to 'bordeaux' (transparent)
+    textAlign: 'center',
+    marginLeft: '914px',
+    marginTop: '-40px',
   },
 }));
 
@@ -192,14 +235,9 @@ function Transactions() {
       setTransactions([]);
     }
   };
-    
-    
-    function Logout(event) {
-      event.preventDefault();
-      localStorage.removeItem("currentAdmin");
-      navigate("/");
-    }
-    
+  
+  
+
   const renderClientList = () => {
     return filteredClients.map((client) => (
       <Paper
@@ -216,48 +254,22 @@ function Transactions() {
     if (!selectedClient) return null;
 
     return (
-      <div className={classes.clientDetailsContainer}>
+      <div >
         <div>
-          <TextField
-            type="date"
-            label="Date"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
-            variant="outlined"
-            className={classes.filterInput}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
 
-<TextField
-  select
-  label="Transaction Type"
-  value={filterTransactionType}
-  onChange={(e) => setFilterTransactionType(e.target.value)}
-  variant="outlined"
-  className={classes.filterInput}
->
-  <MenuItem value="All">All</MenuItem>
-  <MenuItem value="Deposit">Deposit</MenuItem>
-  <MenuItem value="Withdraw">Withdraw</MenuItem>
-  <MenuItem value="Received">Received Transfer</MenuItem>
-  <MenuItem value="Shared">Shared Transfer</MenuItem>
-</TextField>
+
 
         </div>
-
-        <TableContainer component={Paper}>
+        <div className={classes.rectangleContainer}>
+        <div className={classes.rectangle1}>TYPE</div>
+        <div className={classes.rectangle2}>AMOUNT</div>
+        <div className={classes.rectangle3}>DATE</div>
+        <div className={classes.rectangle4}>REASON</div>
+        <div className={classes.rectangle5}>ACCOUNT NUMBER</div>
+      </div>
+        <TableContainer component={Paper}className={classes.clientDetailsContainer}>
           <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Transaction Type</TableCell>
-                <TableCell>Amount</TableCell>
-                <TableCell>Timestamp</TableCell>
-                <TableCell>Reason</TableCell>
-                <TableCell>Account Number</TableCell>
-              </TableRow>
-            </TableHead>
+            
             <TableBody>
               {transactions.map((transaction) => (
                 <TableRow key={transaction.id}>
@@ -297,9 +309,6 @@ function Transactions() {
             <NavLink className={classes.navLink} to="/admin/customerInfo">
               CustomerInfo
             </NavLink>
-            <NavLink className={classes.navLink} to="/admin/transfer">
-              Transfer
-            </NavLink>
             <NavLink className={classes.navLink} to="/admin/transactions">
               Transactions
             </NavLink>
@@ -333,6 +342,20 @@ function Transactions() {
             ),
           }}
         />
+        <TextField
+  select
+  label="Transaction Type"
+  value={filterTransactionType}
+  onChange={(e) => setFilterTransactionType(e.target.value)}
+  variant="outlined"
+  className={classes.filterInput}
+>
+  <MenuItem value="All">All</MenuItem>
+  <MenuItem value="Deposit">Deposit</MenuItem>
+  <MenuItem value="Withdraw">Withdraw</MenuItem>
+  <MenuItem value="Received">Received Transfer</MenuItem>
+  <MenuItem value="Shared">Shared Transfer</MenuItem>
+</TextField>
       </form>
       <Grid item container alignItems="flex-start">
         <Grid item xs={12} sm={6} md={7} className={classes.clientListContainer}>
