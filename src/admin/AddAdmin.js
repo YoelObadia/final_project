@@ -95,7 +95,7 @@ function AddAdmin() {
     }
   
     // Valider le format du username (numeric string de longueur 8 à 15)
-    const usernameRegex = /^[0-9]{8,15}$/;
+    const usernameRegex = /^[A-Za-z0-9]{8,15}$/;
     if (!usernameRegex.test(username)) {
       alert('Le username doit être une chaîne numérique de longueur 8 à 15.');
       return false;

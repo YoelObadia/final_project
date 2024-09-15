@@ -146,7 +146,7 @@ function CustomerInfo() {
 
   useEffect(() => {
     getClientsFromDatabase();
-  }, []);
+  }, );
 
   function Logout(event) {
     event.preventDefault();
@@ -254,11 +254,6 @@ function CustomerInfo() {
         </div>
       </div>
     );
-  };
-
-  const navigateToHome = () => {
-    // You may want to implement this function to handle the navigation back to the home page
-    // navigate("/");
   };
 
   return (

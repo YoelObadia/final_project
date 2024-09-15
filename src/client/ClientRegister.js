@@ -80,7 +80,7 @@ function ClientRegister() {
       return false;
     }
   
-    const usernameRegex = /^[0-9]{8}$/;
+    const usernameRegex = /^[A-Za-z0-9]{8,15}$/;
     if (!usernameRegex.test(username)) {
       alert('Username should be a numeric string of length 8 to 15.');
       return false;

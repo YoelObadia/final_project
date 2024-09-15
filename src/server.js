@@ -8,11 +8,11 @@ app.use(cors());
 app.use(express.json());
 
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'remote_user',
-  port: 3306,
-  password: 'reverso',
-  database: 'fs7',
+  host: '',
+  user: '',
+  port: '',
+  password: '',
+  database: '',
 });
 
 connection.connect((err) => {
